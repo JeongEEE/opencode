@@ -7,6 +7,7 @@ import { Locale } from "@/util/locale"
 import { useProject } from "@tui/context/project"
 import { useKeybind } from "../context/keybind"
 import { useTheme } from "../context/theme"
+import { useI18n } from "../context/i18n"
 import { useSDK } from "../context/sdk"
 import { Flag } from "@/flag/flag"
 import { DialogSessionRename } from "./dialog-session-rename"
@@ -19,6 +20,7 @@ import { Spinner } from "./spinner"
 type WorkspaceStatus = "connected" | "connecting" | "disconnected" | "error"
 
 export function DialogSessionList() {
+  const { t } = useI18n()
   const dialog = useDialog()
   const route = useRoute()
   const sync = useSync()
@@ -50,6 +52,7 @@ export function DialogSessionList() {
             sync,
             toast,
             workspaceID,
+            errorMessage: t().workspace_session_failed,
           })
         }
       />
@@ -72,7 +75,7 @@ export function DialogSessionList() {
         let footer = ""
         if (Flag.OPENCODE_EXPERIMENTAL_WORKSPACES) {
           if (x.workspaceID) {
-            let desc = "unknown"
+            let desc = t().session_list_unknown
             if (workspace) {
               desc = `${workspace.type}: ${workspace.name}`
             }
@@ -102,7 +105,7 @@ export function DialogSessionList() {
         const date = new Date(x.time.updated)
         let category = date.toDateString()
         if (category === today) {
-          category = "Today"
+          category = t().model_today
         }
         const isDeleting = toDelete() === x.id
         const status = sync.data.session_status?.[x.id]
@@ -124,7 +127,7 @@ export function DialogSessionList() {
 
   return (
     <DialogSelect
-      title="Sessions"
+      title={t().session_list}
       options={options()}
       skipFilter={true}
       current={currentSessionID()}
@@ -142,7 +145,7 @@ export function DialogSessionList() {
       keybind={[
         {
           keybind: keybind.all.session_delete?.[0],
-          title: "delete",
+          title: t().session_list_delete,
           onTrigger: async (option) => {
             if (toDelete() === option.value) {
               sdk.client.session.delete({
@@ -156,14 +159,14 @@ export function DialogSessionList() {
         },
         {
           keybind: keybind.all.session_rename?.[0],
-          title: "rename",
+          title: t().session_list_rename,
           onTrigger: async (option) => {
             dialog.replace(() => <DialogSessionRename session={option.value} />)
           },
         },
         {
           keybind: Keybind.parse("ctrl+w")[0],
-          title: "new workspace",
+          title: t().session_list_new_workspace,
           side: "right",
           disabled: !Flag.OPENCODE_EXPERIMENTAL_WORKSPACES,
           onTrigger: () => {

@@ -1,5 +1,6 @@
 import { useDialog } from "@tui/ui/dialog"
 import { DialogSelect, type DialogSelectOption, type DialogSelectRef } from "@tui/ui/dialog-select"
+import { useI18n } from "@tui/context/i18n"
 import {
   createContext,
   createMemo,
@@ -49,13 +50,14 @@ function init() {
   const isVisible = (option: CommandOption) => isEnabled(option) && !option.hidden
 
   const visibleOptions = createMemo(() => entries().filter((option) => isVisible(option)))
+  const { t } = useI18n()
   const suggestedOptions = createMemo(() =>
     visibleOptions()
       .filter((option) => option.suggested)
       .map((option) => ({
         ...option,
         value: `suggested:${option.value}`,
-        category: "Suggested",
+        category: t().cat_suggested,
       })),
   )
   const suspended = () => suspendCount() > 0
@@ -163,9 +165,10 @@ export function CommandProvider(props: ParentProps) {
 
 function DialogCommand(props: { options: CommandOption[]; suggestedOptions: CommandOption[] }) {
   let ref: DialogSelectRef<string>
+  const { t } = useI18n()
   const list = () => {
     if (ref?.filter) return props.options
     return [...props.suggestedOptions, ...props.options]
   }
-  return <DialogSelect ref={(r) => (ref = r)} title="Commands" options={list()} />
+  return <DialogSelect ref={(r) => (ref = r)} title={t().cmd_palette_title} options={list()} />
 }

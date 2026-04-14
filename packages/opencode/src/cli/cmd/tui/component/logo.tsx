@@ -9,6 +9,8 @@ import { logo, marks } from "@/cli/logo"
 // ~ = shadow top only (▀ with fg=shadow)
 const SHADOW_MARKER = new RegExp(`[${marks}]`)
 
+const pastelPurple = RGBA.fromHex("#C4B5FD")
+
 export function Logo() {
   const { theme } = useTheme()
 
@@ -75,7 +77,7 @@ export function Logo() {
       <For each={logo.left}>
         {(line, index) => (
           <box flexDirection="row" gap={1}>
-            <box flexDirection="row">{renderLine(line, theme.textMuted, false)}</box>
+            <box flexDirection="row">{renderLine(line, pastelPurple, false)}</box>
             <box flexDirection="row">{renderLine(logo.right[index()], theme.text, true)}</box>
           </box>
         )}

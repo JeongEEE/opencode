@@ -4,6 +4,7 @@ import { useSDK } from "@tui/context/sdk"
 import { useDialog } from "@tui/ui/dialog"
 import { useToast } from "@tui/ui/toast"
 import { useTheme } from "@tui/context/theme"
+import { useI18n } from "@tui/context/i18n"
 import type { ExperimentalConsoleListOrgsResponse } from "@opencode-ai/sdk/v2"
 
 type OrgOption = ExperimentalConsoleListOrgsResponse["orgs"][number]
@@ -24,6 +25,7 @@ export function DialogConsoleOrg() {
   const dialog = useDialog()
   const toast = useToast()
   const { theme } = useTheme()
+  const { t } = useI18n()
 
   const [orgs] = createResource(async () => {
     const result = await sdk.client.experimental.console.listOrgs({}, { throwOnError: true })
@@ -37,7 +39,7 @@ export function DialogConsoleOrg() {
     if (listed === undefined) {
       return [
         {
-          title: "Loading orgs...",
+          title: t().org_loading,
           value: "loading",
           onSelect: () => {},
         },
@@ -47,7 +49,7 @@ export function DialogConsoleOrg() {
     if (listed.length === 0) {
       return [
         {
-          title: "No orgs found",
+          title: t().org_none,
           value: "empty",
           onSelect: () => {},
         },
@@ -91,7 +93,7 @@ export function DialogConsoleOrg() {
 
           await sdk.client.instance.dispose()
           toast.show({
-            message: `Switched to ${item.orgName}`,
+            message: t().org_switched(item.orgName),
             variant: "info",
           })
           dialog.clear()
@@ -99,5 +101,5 @@ export function DialogConsoleOrg() {
       }))
   })
 
-  return <DialogSelect<string | OrgOption> title="Switch org" options={options()} current={current()} />
+  return <DialogSelect<string | OrgOption> title={t().cmd_org_switch} options={options()} current={current()} />
 }

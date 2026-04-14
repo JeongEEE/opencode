@@ -6,6 +6,7 @@ import { useRoute } from "@tui/context/route"
 import { Clipboard } from "@tui/util/clipboard"
 import type { PromptInfo } from "@tui/component/prompt/history"
 import { strip } from "@tui/component/prompt/part"
+import { useI18n } from "@tui/context/i18n"
 
 export function DialogMessage(props: {
   messageID: string
@@ -16,15 +17,16 @@ export function DialogMessage(props: {
   const sdk = useSDK()
   const message = createMemo(() => sync.data.message[props.sessionID]?.find((x) => x.id === props.messageID))
   const route = useRoute()
+  const { t } = useI18n()
 
   return (
     <DialogSelect
-      title="Message Actions"
+      title={t().msg_actions}
       options={[
         {
-          title: "Revert",
+          title: t().msg_revert,
           value: "session.revert",
-          description: "undo messages and file changes",
+          description: t().msg_revert_desc,
           onSelect: (dialog) => {
             const msg = message()
             if (!msg) return
@@ -53,9 +55,9 @@ export function DialogMessage(props: {
           },
         },
         {
-          title: "Copy",
+          title: t().msg_copy,
           value: "message.copy",
-          description: "message text to clipboard",
+          description: t().msg_copy_desc,
           onSelect: async (dialog) => {
             const msg = message()
             if (!msg) return
@@ -73,9 +75,9 @@ export function DialogMessage(props: {
           },
         },
         {
-          title: "Fork",
+          title: t().msg_fork,
           value: "session.fork",
-          description: "create a new session",
+          description: t().msg_fork_desc,
           onSelect: async (dialog) => {
             const result = await sdk.client.session.fork({
               sessionID: props.sessionID,

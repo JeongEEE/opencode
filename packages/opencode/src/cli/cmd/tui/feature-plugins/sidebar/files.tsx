@@ -1,9 +1,11 @@
 import type { TuiPlugin, TuiPluginApi, TuiPluginModule } from "@opencode-ai/plugin/tui"
 import { createMemo, For, Show, createSignal } from "solid-js"
+import { useI18n } from "../../context/i18n"
 
 const id = "internal:sidebar-files"
 
 function View(props: { api: TuiPluginApi; session_id: string }) {
+  const { t } = useI18n()
   const [open, setOpen] = createSignal(true)
   const theme = () => props.api.theme.current
   const list = createMemo(() => props.api.state.session.diff(props.session_id))
@@ -16,7 +18,7 @@ function View(props: { api: TuiPluginApi; session_id: string }) {
             <text fg={theme().text}>{open() ? "▼" : "▶"}</text>
           </Show>
           <text fg={theme().text}>
-            <b>Modified Files</b>
+            <b>{t().sidebar_modified_files}</b>
           </text>
         </box>
         <Show when={list().length <= 2 || open()}>

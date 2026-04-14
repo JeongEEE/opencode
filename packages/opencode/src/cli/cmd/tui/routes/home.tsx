@@ -9,13 +9,9 @@ import { useRouteData } from "@tui/context/route"
 import { usePromptRef } from "../context/prompt"
 import { useLocal } from "../context/local"
 import { TuiPluginRuntime } from "../plugin"
+import { useI18n } from "../context/i18n"
 
-// TODO: what is the best way to do this?
 let once = false
-const placeholder = {
-  normal: ["Fix a TODO in the codebase", "What is the tech stack of this project?", "Fix broken tests"],
-  shell: ["ls -la", "git status", "pwd"],
-}
 
 export function Home() {
   const sync = useSync()
@@ -25,6 +21,7 @@ export function Home() {
   const [ref, setRef] = createSignal<PromptRef | undefined>()
   const args = useArgs()
   const local = useLocal()
+  const { t } = useI18n()
   let sent = false
 
   const bind = (r: PromptRef | undefined) => {
@@ -75,7 +72,10 @@ export function Home() {
               ref={bind}
               workspaceID={project.workspace.current()}
               right={<TuiPluginRuntime.Slot name="home_prompt_right" workspace_id={project.workspace.current()} />}
-              placeholders={placeholder}
+              placeholders={{
+                normal: [t().tip_fix_todo, t().tip_tech_stack, t().tip_fix_tests],
+                shell: ["ls -la", "git status", "pwd"],
+              }}
             />
           </TuiPluginRuntime.Slot>
         </box>

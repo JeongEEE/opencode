@@ -1,6 +1,7 @@
 import type { AssistantMessage } from "@opencode-ai/sdk/v2"
 import type { TuiPlugin, TuiPluginApi, TuiPluginModule } from "@opencode-ai/plugin/tui"
 import { createMemo } from "solid-js"
+import { useI18n } from "../../context/i18n"
 
 const id = "internal:sidebar-context"
 
@@ -10,6 +11,7 @@ const money = new Intl.NumberFormat("en-US", {
 })
 
 function View(props: { api: TuiPluginApi; session_id: string }) {
+  const { t } = useI18n()
   const theme = () => props.api.theme.current
   const msg = createMemo(() => props.api.state.session.messages(props.session_id))
   const cost = createMemo(() => msg().reduce((sum, item) => sum + (item.role === "assistant" ? item.cost : 0), 0))
@@ -35,11 +37,11 @@ function View(props: { api: TuiPluginApi; session_id: string }) {
   return (
     <box>
       <text fg={theme().text}>
-        <b>Context</b>
+        <b>{t().sidebar_context}</b>
       </text>
-      <text fg={theme().textMuted}>{state().tokens.toLocaleString()} tokens</text>
-      <text fg={theme().textMuted}>{state().percent ?? 0}% used</text>
-      <text fg={theme().textMuted}>{money.format(cost())} spent</text>
+      <text fg={theme().textMuted}>{state().tokens.toLocaleString()} {t().sidebar_tokens}</text>
+      <text fg={theme().textMuted}>{state().percent ?? 0}{t().sidebar_pct_used}</text>
+      <text fg={theme().textMuted}>{money.format(cost())} {t().sidebar_spent}</text>
     </box>
   )
 }

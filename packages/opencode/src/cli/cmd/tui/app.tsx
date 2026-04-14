@@ -46,6 +46,7 @@ import { FrecencyProvider } from "./component/prompt/frecency"
 import { PromptStashProvider } from "./component/prompt/stash"
 import { DialogAlert } from "./ui/dialog-alert"
 import { DialogConfirm } from "./ui/dialog-confirm"
+import { DialogSelect } from "./ui/dialog-select"
 import { ToastProvider, useToast } from "./ui/toast"
 import { ExitProvider, useExit } from "./context/exit"
 import { Session as SessionApi } from "@/session"
@@ -56,6 +57,7 @@ import { ArgsProvider, useArgs, type Args } from "./context/args"
 import open from "open"
 import { PromptRefProvider, usePromptRef } from "./context/prompt"
 import { TuiConfigProvider, useTuiConfig } from "./context/tui-config"
+import { I18nProvider, useI18n } from "./context/i18n"
 import { TuiConfig } from "@/config/tui"
 import { createTuiApi, TuiPluginRuntime, type RouteMap } from "./plugin"
 import { FormatError, FormatUnknownError } from "@/cli/error"
@@ -205,43 +207,45 @@ export function tui(input: {
           <ArgsProvider {...input.args}>
             <ExitProvider onBeforeExit={onBeforeExit} onExit={onExit}>
               <KVProvider>
-                <ToastProvider>
-                  <RouteProvider>
-                    <TuiConfigProvider config={input.config}>
-                      <SDKProvider
-                        url={input.url}
-                        directory={input.directory}
-                        fetch={input.fetch}
-                        headers={input.headers}
-                        events={input.events}
-                      >
-                        <ProjectProvider>
-                          <SyncProvider>
-                            <ThemeProvider mode={mode}>
-                              <LocalProvider>
-                                <KeybindProvider>
-                                  <PromptStashProvider>
-                                    <DialogProvider>
-                                      <CommandProvider>
-                                        <FrecencyProvider>
-                                          <PromptHistoryProvider>
-                                            <PromptRefProvider>
-                                              <App onSnapshot={input.onSnapshot} />
-                                            </PromptRefProvider>
-                                          </PromptHistoryProvider>
-                                        </FrecencyProvider>
-                                      </CommandProvider>
-                                    </DialogProvider>
-                                  </PromptStashProvider>
-                                </KeybindProvider>
-                              </LocalProvider>
-                            </ThemeProvider>
-                          </SyncProvider>
-                        </ProjectProvider>
-                      </SDKProvider>
-                    </TuiConfigProvider>
-                  </RouteProvider>
-                </ToastProvider>
+                <I18nProvider language={input.config.language}>
+                  <ToastProvider>
+                    <RouteProvider>
+                      <TuiConfigProvider config={input.config}>
+                        <SDKProvider
+                          url={input.url}
+                          directory={input.directory}
+                          fetch={input.fetch}
+                          headers={input.headers}
+                          events={input.events}
+                        >
+                          <ProjectProvider>
+                            <SyncProvider>
+                              <ThemeProvider mode={mode}>
+                                <LocalProvider>
+                                  <KeybindProvider>
+                                    <PromptStashProvider>
+                                      <DialogProvider>
+                                        <CommandProvider>
+                                          <FrecencyProvider>
+                                            <PromptHistoryProvider>
+                                              <PromptRefProvider>
+                                                <App onSnapshot={input.onSnapshot} />
+                                              </PromptRefProvider>
+                                            </PromptHistoryProvider>
+                                          </FrecencyProvider>
+                                        </CommandProvider>
+                                      </DialogProvider>
+                                    </PromptStashProvider>
+                                  </KeybindProvider>
+                                </LocalProvider>
+                              </ThemeProvider>
+                            </SyncProvider>
+                          </ProjectProvider>
+                        </SDKProvider>
+                      </TuiConfigProvider>
+                    </RouteProvider>
+                  </ToastProvider>
+                </I18nProvider>
               </KVProvider>
             </ExitProvider>
           </ArgsProvider>
@@ -266,6 +270,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
   const toast = useToast()
   const themeState = useTheme()
   const { theme, mode, setMode, locked, lock, unlock } = themeState
+  const { t, setLanguage, lang } = useI18n()
   const sync = useSync()
   const exit = useExit()
   const promptRef = usePromptRef()
@@ -341,7 +346,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
     if (!text || text.length === 0) return
 
     await Clipboard.copy(text)
-      .then(() => toast.show({ message: "Copied to clipboard", variant: "info" }))
+      .then(() => toast.show({ message: t().copied_clipboard, variant: "info" }))
       .catch(toast.error)
 
     renderer.clearSelection()
@@ -412,7 +417,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
           if (result.data?.id) {
             route.navigate({ type: "session", sessionID: result.data.id })
           } else {
-            toast.show({ message: "Failed to fork session", variant: "error" })
+            toast.show({ message: t().session_fork_failed, variant: "error" })
           }
         })
       } else {
@@ -432,7 +437,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       if (result.data?.id) {
         route.navigate({ type: "session", sessionID: result.data.id })
       } else {
-        toast.show({ message: "Failed to fork session", variant: "error" })
+        toast.show({ message: t().session_fork_failed, variant: "error" })
       }
     })
   })
@@ -451,10 +456,10 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
   const connected = useConnected()
   command.register(() => [
     {
-      title: "Switch session",
+      title: t().session_switch,
       value: "session.list",
       keybind: "session_list",
-      category: "Session",
+      category: t().cat_session,
       suggested: sync.data.session.length > 0,
       slash: {
         name: "sessions",
@@ -465,11 +470,11 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
     },
     {
-      title: "New session",
+      title: t().session_new,
       suggested: route.data.type === "session",
       value: "session.new",
       keybind: "session_new",
-      category: "Session",
+      category: t().cat_session,
       slash: {
         name: "new",
         aliases: ["clear"],
@@ -486,11 +491,11 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
     },
     {
-      title: "Switch model",
+      title: t().cmd_model_list,
       value: "model.list",
       keybind: "model_list",
       suggested: true,
-      category: "Agent",
+      category: t().cat_agent,
       slash: {
         name: "models",
       },
@@ -499,50 +504,50 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
     },
     {
-      title: "Model cycle",
+      title: t().cmd_model_cycle,
       value: "model.cycle_recent",
       keybind: "model_cycle_recent",
-      category: "Agent",
+      category: t().cat_agent,
       hidden: true,
       onSelect: () => {
         local.model.cycle(1)
       },
     },
     {
-      title: "Model cycle reverse",
+      title: t().cmd_model_cycle_rev,
       value: "model.cycle_recent_reverse",
       keybind: "model_cycle_recent_reverse",
-      category: "Agent",
+      category: t().cat_agent,
       hidden: true,
       onSelect: () => {
         local.model.cycle(-1)
       },
     },
     {
-      title: "Favorite cycle",
+      title: t().cmd_favorite_cycle,
       value: "model.cycle_favorite",
       keybind: "model_cycle_favorite",
-      category: "Agent",
+      category: t().cat_agent,
       hidden: true,
       onSelect: () => {
         local.model.cycleFavorite(1)
       },
     },
     {
-      title: "Favorite cycle reverse",
+      title: t().cmd_favorite_cycle_rev,
       value: "model.cycle_favorite_reverse",
       keybind: "model_cycle_favorite_reverse",
-      category: "Agent",
+      category: t().cat_agent,
       hidden: true,
       onSelect: () => {
         local.model.cycleFavorite(-1)
       },
     },
     {
-      title: "Switch agent",
+      title: t().cmd_agent_list,
       value: "agent.list",
       keybind: "agent_list",
-      category: "Agent",
+      category: t().cat_agent,
       slash: {
         name: "agents",
       },
@@ -551,9 +556,9 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
     },
     {
-      title: "Toggle MCPs",
+      title: t().cmd_mcp_list,
       value: "mcp.list",
-      category: "Agent",
+      category: t().cat_agent,
       slash: {
         name: "mcps",
       },
@@ -562,29 +567,29 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
     },
     {
-      title: "Agent cycle",
+      title: t().cmd_agent_cycle,
       value: "agent.cycle",
       keybind: "agent_cycle",
-      category: "Agent",
+      category: t().cat_agent,
       hidden: true,
       onSelect: () => {
         local.agent.move(1)
       },
     },
     {
-      title: "Variant cycle",
+      title: t().cmd_variant_cycle,
       value: "variant.cycle",
       keybind: "variant_cycle",
-      category: "Agent",
+      category: t().cat_agent,
       onSelect: () => {
         local.model.variant.cycle()
       },
     },
     {
-      title: "Switch model variant",
+      title: t().cmd_variant_list,
       value: "variant.list",
       keybind: "variant_list",
-      category: "Agent",
+      category: t().cat_agent,
       hidden: local.model.variant.list().length === 0,
       slash: {
         name: "variants",
@@ -594,17 +599,17 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
     },
     {
-      title: "Agent cycle reverse",
+      title: t().cmd_agent_cycle_rev,
       value: "agent.cycle.reverse",
       keybind: "agent_cycle_reverse",
-      category: "Agent",
+      category: t().cat_agent,
       hidden: true,
       onSelect: () => {
         local.agent.move(-1)
       },
     },
     {
-      title: "Connect provider",
+      title: t().cmd_provider_connect,
       value: "provider.connect",
       suggested: !connected(),
       slash: {
@@ -613,12 +618,12 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       onSelect: () => {
         dialog.replace(() => <DialogProviderList />)
       },
-      category: "Provider",
+      category: t().cat_provider,
     },
     ...(sync.data.console_state.switchableOrgCount > 1
       ? [
           {
-            title: "Switch org",
+            title: t().cmd_org_switch,
             value: "console.org.switch",
             suggested: Boolean(sync.data.console_state.activeOrgName),
             slash: {
@@ -628,12 +633,12 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
             onSelect: () => {
               dialog.replace(() => <DialogConsoleOrg />)
             },
-            category: "Provider",
+            category: t().cat_provider,
           },
         ]
       : []),
     {
-      title: "View status",
+      title: t().cmd_status,
       keybind: "status_view",
       value: "opencode.status",
       slash: {
@@ -642,10 +647,10 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       onSelect: () => {
         dialog.replace(() => <DialogStatus />)
       },
-      category: "System",
+      category: t().cat_system,
     },
     {
-      title: "Switch theme",
+      title: t().cmd_theme_switch,
       value: "theme.switch",
       keybind: "theme_list",
       slash: {
@@ -654,29 +659,50 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       onSelect: () => {
         dialog.replace(() => <DialogThemeList />)
       },
-      category: "System",
+      category: t().cat_system,
     },
     {
-      title: "Toggle theme mode",
+      title: t().cmd_theme_mode,
       value: "theme.switch_mode",
       onSelect: (dialog) => {
         setMode(mode() === "dark" ? "light" : "dark")
         dialog.clear()
       },
-      category: "System",
+      category: t().cat_system,
     },
     {
-      title: locked() ? "Unlock theme mode" : "Lock theme mode",
+      title: t().cmd_theme_lock(locked()),
       value: "theme.mode.lock",
       onSelect: (dialog) => {
         if (locked()) unlock()
         else lock()
         dialog.clear()
       },
-      category: "System",
+      category: t().cat_system,
     },
     {
-      title: "Help",
+      title: t().cmd_language,
+      value: "app.language",
+      category: t().cat_system,
+      onSelect: () => {
+        dialog.replace(() => (
+          <DialogSelect
+            title={t().cmd_language}
+            options={[
+              { title: t().lang_en, value: "en", gutter: lang() === "en" ? <text>✓</text> : undefined },
+              { title: t().lang_ko, value: "ko", gutter: lang() === "ko" ? <text>✓</text> : undefined },
+            ]}
+            onSelect={(opt) => {
+              setLanguage(opt.value)
+              kv.set("language", opt.value)
+              dialog.clear()
+            }}
+          />
+        ))
+      },
+    },
+    {
+      title: t().cmd_help,
       value: "help.show",
       slash: {
         name: "help",
@@ -684,30 +710,30 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       onSelect: () => {
         dialog.replace(() => <DialogHelp />)
       },
-      category: "System",
+      category: t().cat_system,
     },
     {
-      title: "Open docs",
+      title: t().cmd_docs,
       value: "docs.open",
       onSelect: () => {
         open("https://opencode.ai/docs").catch(() => {})
         dialog.clear()
       },
-      category: "System",
+      category: t().cat_system,
     },
     {
-      title: "Exit the app",
+      title: t().cmd_exit,
       value: "app.exit",
       slash: {
         name: "exit",
         aliases: ["quit", "q"],
       },
       onSelect: () => exit(),
-      category: "System",
+      category: t().cat_system,
     },
     {
-      title: "Toggle debug panel",
-      category: "System",
+      title: t().cmd_debug,
+      category: t().cat_system,
       value: "app.debug",
       onSelect: (dialog) => {
         renderer.toggleDebugOverlay()
@@ -715,8 +741,8 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
     },
     {
-      title: "Toggle console",
-      category: "System",
+      title: t().cmd_console,
+      category: t().cat_system,
       value: "app.console",
       onSelect: (dialog) => {
         renderer.console.toggle()
@@ -724,24 +750,24 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
     },
     {
-      title: "Write heap snapshot",
-      category: "System",
+      title: t().cmd_heap,
+      category: t().cat_system,
       value: "app.heap_snapshot",
       onSelect: async (dialog) => {
         const files = await props.onSnapshot?.()
         toast.show({
           variant: "info",
-          message: `Heap snapshot written to ${files?.join(", ")}`,
+          message: t().heap_snapshot(files?.join(", ") ?? ""),
           duration: 5000,
         })
         dialog.clear()
       },
     },
     {
-      title: "Suspend terminal",
+      title: t().cmd_suspend,
       value: "terminal.suspend",
       keybind: "terminal_suspend",
-      category: "System",
+      category: t().cat_system,
       hidden: true,
       enabled: tuiConfig.keybinds?.terminal_suspend !== "none",
       onSelect: () => {
@@ -755,10 +781,10 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
     },
     {
-      title: terminalTitleEnabled() ? "Disable terminal title" : "Enable terminal title",
+      title: t().cmd_title_toggle(terminalTitleEnabled()),
       value: "terminal.title.toggle",
       keybind: "terminal_title_toggle",
-      category: "System",
+      category: t().cat_system,
       onSelect: (dialog) => {
         setTerminalTitleEnabled((prev) => {
           const next = !prev
@@ -770,18 +796,18 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
     },
     {
-      title: kv.get("animations_enabled", true) ? "Disable animations" : "Enable animations",
+      title: t().cmd_animations_toggle(kv.get("animations_enabled", true)),
       value: "app.toggle.animations",
-      category: "System",
+      category: t().cat_system,
       onSelect: (dialog) => {
         kv.set("animations_enabled", !kv.get("animations_enabled", true))
         dialog.clear()
       },
     },
     {
-      title: kv.get("diff_wrap_mode", "word") === "word" ? "Disable diff wrapping" : "Enable diff wrapping",
+      title: t().cmd_diffwrap_toggle(kv.get("diff_wrap_mode", "word") === "word"),
       value: "app.toggle.diffwrap",
-      category: "System",
+      category: t().cat_system,
       onSelect: (dialog) => {
         const current = kv.get("diff_wrap_mode", "word")
         kv.set("diff_wrap_mode", current === "word" ? "none" : "word")
@@ -815,7 +841,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       route.navigate({ type: "home" })
       toast.show({
         variant: "info",
-        message: "The current session was deleted",
+        message: t().session_deleted,
       })
     }
   })
@@ -854,7 +880,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
 
     toast.show({
       variant: "info",
-      message: `Updating to v${version}...`,
+      message: t().update_updating(version),
       duration: 30000,
     })
 
@@ -863,8 +889,8 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
     if (result.error || !result.data?.success) {
       toast.show({
         variant: "error",
-        title: "Update Failed",
-        message: "Update failed",
+        title: t().update_failed_title,
+        message: t().update_failed_msg,
         duration: 10000,
       })
       return
@@ -872,8 +898,8 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
 
     await DialogAlert.show(
       dialog,
-      "Update Complete",
-      `Successfully updated to OpenCode v${result.data.version}. Please restart the application.`,
+      t().update_complete_title,
+      t().update_complete_msg(result.data.version),
     )
 
     exit()

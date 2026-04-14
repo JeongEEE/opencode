@@ -3,6 +3,7 @@ import { useKeyboard } from "@opentui/solid"
 import open from "open"
 import { createSignal } from "solid-js"
 import { selectedForeground, useTheme } from "@tui/context/theme"
+import { useI18n } from "../context/i18n"
 import { useDialog, type DialogContext } from "@tui/ui/dialog"
 import { Link } from "@tui/ui/link"
 
@@ -26,6 +27,7 @@ function dismiss(props: DialogGoUpsellProps, dialog: ReturnType<typeof useDialog
 export function DialogGoUpsell(props: DialogGoUpsellProps) {
   const dialog = useDialog()
   const { theme } = useTheme()
+  const { t } = useI18n()
   const fg = selectedForeground(theme)
   const [selected, setSelected] = createSignal(0)
 
@@ -43,7 +45,7 @@ export function DialogGoUpsell(props: DialogGoUpsellProps) {
     <box paddingLeft={2} paddingRight={2} gap={1}>
       <box flexDirection="row" justifyContent="space-between">
         <text attributes={TextAttributes.BOLD} fg={theme.text}>
-          Free limit reached
+          {t().upsell_title}
         </text>
         <text fg={theme.textMuted} onMouseUp={() => dialog.clear()}>
           esc
@@ -51,8 +53,7 @@ export function DialogGoUpsell(props: DialogGoUpsellProps) {
       </box>
       <box gap={1} paddingBottom={1}>
         <text fg={theme.textMuted}>
-          Subscribe to OpenCode Go to keep going with reliable access to the best open-source models, starting at
-          $5/month.
+          {t().upsell_desc}
         </text>
         <box flexDirection="row" gap={1}>
           <Link href={GO_URL} fg={theme.primary} />
@@ -67,7 +68,7 @@ export function DialogGoUpsell(props: DialogGoUpsellProps) {
           onMouseUp={() => subscribe(props, dialog)}
         >
           <text fg={selected() === 0 ? fg : theme.text} attributes={selected() === 0 ? TextAttributes.BOLD : undefined}>
-            subscribe
+            {t().upsell_subscribe}
           </text>
         </box>
         <box
@@ -81,7 +82,7 @@ export function DialogGoUpsell(props: DialogGoUpsellProps) {
             fg={selected() === 1 ? fg : theme.textMuted}
             attributes={selected() === 1 ? TextAttributes.BOLD : undefined}
           >
-            don't show again
+            {t().upsell_dont_show}
           </text>
         </box>
       </box>

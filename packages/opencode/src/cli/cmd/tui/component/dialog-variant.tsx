@@ -2,8 +2,10 @@ import { createMemo } from "solid-js"
 import { useLocal } from "@tui/context/local"
 import { DialogSelect } from "@tui/ui/dialog-select"
 import { useDialog } from "@tui/ui/dialog"
+import { useI18n } from "../context/i18n"
 
 export function DialogVariant() {
+  const { t } = useI18n()
   const local = useLocal()
   const dialog = useDialog()
 
@@ -11,7 +13,7 @@ export function DialogVariant() {
     return [
       {
         value: "default",
-        title: "Default",
+        title: t().variant_default,
         onSelect: () => {
           dialog.clear()
           local.model.variant.set(undefined)
@@ -31,7 +33,7 @@ export function DialogVariant() {
   return (
     <DialogSelect<string>
       options={options()}
-      title={"Select variant"}
+      title={t().variant_select}
       current={local.model.variant.selected()}
       flat={true}
     />

@@ -1,9 +1,11 @@
 import type { TuiPlugin, TuiPluginApi, TuiPluginModule } from "@opencode-ai/plugin/tui"
 import { createMemo, For, Show, createSignal } from "solid-js"
+import { useI18n } from "../../context/i18n"
 
 const id = "internal:sidebar-lsp"
 
 function View(props: { api: TuiPluginApi }) {
+  const { t } = useI18n()
   const [open, setOpen] = createSignal(true)
   const theme = () => props.api.theme.current
   const list = createMemo(() => props.api.state.lsp())
@@ -22,7 +24,7 @@ function View(props: { api: TuiPluginApi }) {
       <Show when={list().length <= 2 || open()}>
         <Show when={list().length === 0}>
           <text fg={theme().textMuted}>
-            {off() ? "LSPs have been disabled in settings" : "LSPs will activate as files are read"}
+            {off() ? t().sidebar_lsp_disabled : t().sidebar_lsp_inactive}
           </text>
         </Show>
         <For each={list()}>

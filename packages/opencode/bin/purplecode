@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+TARGET="$(pwd)"
+OPENCODE_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$OPENCODE_ROOT"
+exec bun run --conditions=browser ./src/index.ts "$TARGET" "$@"

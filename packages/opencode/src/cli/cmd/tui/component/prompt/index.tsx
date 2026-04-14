@@ -37,6 +37,7 @@ import { useToast } from "../../ui/toast"
 import { useKV } from "../../context/kv"
 import { useTextareaKeybindings } from "../textarea-keybindings"
 import { DialogSkill } from "../dialog-skill"
+import { useI18n } from "@tui/context/i18n"
 
 export type PromptProps = {
   sessionID?: string
@@ -86,6 +87,7 @@ export function Prompt(props: PromptProps) {
   const sync = useSync()
   const dialog = useDialog()
   const toast = useToast()
+  const { t } = useI18n()
   const status = createMemo(() => sync.data.session_status?.[props.sessionID ?? ""] ?? { type: "idle" })
   const history = usePromptHistory()
   const stash = usePromptStash()
@@ -102,7 +104,7 @@ export function Prompt(props: PromptProps) {
   function promptModelWarning() {
     toast.show({
       variant: "warning",
-      message: "Connect a provider to send prompts",
+      message: t().toast_connect_provider,
       duration: 3000,
     })
     if (sync.data.provider.length === 0) {
@@ -214,7 +216,7 @@ export function Prompt(props: PromptProps) {
   command.register(() => {
     return [
       {
-        title: "Clear prompt",
+        title: t().cmd_clear_prompt,
         value: "prompt.clear",
         category: "Prompt",
         hidden: true,
@@ -225,7 +227,7 @@ export function Prompt(props: PromptProps) {
         },
       },
       {
-        title: "Submit prompt",
+        title: t().cmd_submit_prompt,
         value: "prompt.submit",
         keybind: "input_submit",
         category: "Prompt",
@@ -237,7 +239,7 @@ export function Prompt(props: PromptProps) {
         },
       },
       {
-        title: "Paste",
+        title: t().cmd_paste,
         value: "prompt.paste",
         keybind: "input_paste",
         category: "Prompt",
@@ -254,7 +256,7 @@ export function Prompt(props: PromptProps) {
         },
       },
       {
-        title: "Interrupt session",
+        title: t().cmd_interrupt,
         value: "session.interrupt",
         keybind: "session_interrupt",
         category: "Session",
@@ -286,7 +288,7 @@ export function Prompt(props: PromptProps) {
         },
       },
       {
-        title: "Open editor",
+        title: t().cmd_open_editor,
         category: "Session",
         keybind: "editor_open",
         value: "prompt.editor",
@@ -373,7 +375,7 @@ export function Prompt(props: PromptProps) {
         },
       },
       {
-        title: "Skills",
+        title: t().cmd_skills,
         value: "prompt.skills",
         category: "Prompt",
         slash: {
@@ -535,7 +537,7 @@ export function Prompt(props: PromptProps) {
 
   command.register(() => [
     {
-      title: "Stash prompt",
+      title: t().cmd_stash_prompt,
       value: "prompt.stash",
       category: "Prompt",
       enabled: !!store.prompt.input,
@@ -553,7 +555,7 @@ export function Prompt(props: PromptProps) {
       },
     },
     {
-      title: "Stash pop",
+      title: t().cmd_stash_pop,
       value: "prompt.stash.pop",
       category: "Prompt",
       enabled: stash.list().length > 0,
@@ -569,7 +571,7 @@ export function Prompt(props: PromptProps) {
       },
     },
     {
-      title: "Stash list",
+      title: t().cmd_stash_list,
       value: "prompt.stash.list",
       category: "Prompt",
       enabled: stash.list().length > 0,
@@ -620,7 +622,7 @@ export function Prompt(props: PromptProps) {
         console.log("Creating a session failed:", res.error)
 
         toast.show({
-          message: "Creating a session failed. Open console for more details.",
+          message: t().toast_session_create_failed,
           variant: "error",
         })
 
@@ -895,7 +897,8 @@ export function Prompt(props: PromptProps) {
       <box ref={(r) => (anchor = r)} visible={props.visible !== false}>
         <box
           border={["left"]}
-          borderColor={highlight()}
+          // borderColor={highlight()} /* 에이전트 색상 띠 비활성화 */
+          borderColor={theme.border}
           customBorderChars={{
             ...SplitBorder.customBorderChars,
             bottomLeft: "╹",
@@ -1133,7 +1136,7 @@ export function Prompt(props: PromptProps) {
         <box
           height={1}
           border={["left"]}
-          borderColor={highlight()}
+          borderColor={theme.border} // borderColor={highlight()} — 에이전트 색상 띠 비활성화
           customBorderChars={{
             ...EmptyBorder,
             vertical: theme.backgroundElement.a !== 0 ? "╹" : " ",
@@ -1181,7 +1184,7 @@ export function Prompt(props: PromptProps) {
                       const r = retry()
                       if (!r) return
                       if (r.message.includes("exceeded your current quota") && r.message.includes("gemini"))
-                        return "gemini is way too hot right now"
+                        return t().prompt_retry_gemini
                       if (r.message.length > 80) return r.message.slice(0, 80) + "..."
                       return r.message
                     })
@@ -1205,7 +1208,7 @@ export function Prompt(props: PromptProps) {
                       const r = retry()
                       if (!r) return
                       if (isTruncated()) {
-                        DialogAlert.show(dialog, "Retry Error", r.message)
+                        DialogAlert.show(dialog, t().retry_error_title, r.message)
                       }
                     }
 
@@ -1213,9 +1216,9 @@ export function Prompt(props: PromptProps) {
                       const r = retry()
                       if (!r) return ""
                       const baseMessage = message()
-                      const truncatedHint = isTruncated() ? " (click to expand)" : ""
+                      const truncatedHint = isTruncated() ? ` ${t().prompt_click_expand}` : ""
                       const duration = formatDuration(seconds())
-                      const retryInfo = ` [retrying ${duration ? `in ${duration} ` : ""}attempt #${r.attempt}]`
+                      const retryInfo = ` [${t().prompt_retry(duration, r.attempt)}]`
                       return baseMessage + truncatedHint + retryInfo
                     }
 
@@ -1232,7 +1235,7 @@ export function Prompt(props: PromptProps) {
               <text fg={store.interrupt > 0 ? theme.primary : theme.text}>
                 esc{" "}
                 <span style={{ fg: store.interrupt > 0 ? theme.primary : theme.textMuted }}>
-                  {store.interrupt > 0 ? "again to interrupt" : "interrupt"}
+                  {store.interrupt > 0 ? t().prompt_interrupt_again : t().prompt_interrupt}
                 </span>
               </text>
             </box>
@@ -1251,17 +1254,17 @@ export function Prompt(props: PromptProps) {
                     </Match>
                     <Match when={true}>
                       <text fg={theme.text}>
-                        {keybind.print("agent_cycle")} <span style={{ fg: theme.textMuted }}>agents</span>
+                        {keybind.print("agent_cycle")} <span style={{ fg: theme.textMuted }}>{t().prompt_agents}</span>
                       </text>
                     </Match>
                   </Switch>
                   <text fg={theme.text}>
-                    {keybind.print("command_list")} <span style={{ fg: theme.textMuted }}>commands</span>
+                    {keybind.print("command_list")} <span style={{ fg: theme.textMuted }}>{t().prompt_commands}</span>
                   </text>
                 </Match>
                 <Match when={store.mode === "shell"}>
                   <text fg={theme.text}>
-                    esc <span style={{ fg: theme.textMuted }}>exit shell mode</span>
+                    esc <span style={{ fg: theme.textMuted }}>{t().prompt_exit_shell}</span>
                   </text>
                 </Match>
               </Switch>

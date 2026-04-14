@@ -8,6 +8,7 @@ import { createMemo, createSignal, onMount } from "solid-js"
 import { setTimeout as sleep } from "node:timers/promises"
 import { useSDK } from "../context/sdk"
 import { useToast } from "../ui/toast"
+import { useI18n } from "@tui/context/i18n"
 
 function scoped(sdk: ReturnType<typeof useSDK>, sync: ReturnType<typeof useSync>, workspaceID: string) {
   return createOpencodeClient({
@@ -25,13 +26,14 @@ export async function openWorkspaceSession(input: {
   sync: ReturnType<typeof useSync>
   toast: ReturnType<typeof useToast>
   workspaceID: string
+  errorMessage: string
 }) {
   const client = scoped(input.sdk, input.sync, input.workspaceID)
   while (true) {
     const result = await client.session.create({ workspaceID: input.workspaceID }).catch(() => undefined)
     if (!result) {
       input.toast.show({
-        message: "Failed to create workspace session",
+        message: input.errorMessage,
         variant: "error",
       })
       return
@@ -42,7 +44,7 @@ export async function openWorkspaceSession(input: {
     }
     if (!result.data) {
       input.toast.show({
-        message: "Failed to create workspace session",
+        message: input.errorMessage,
         variant: "error",
       })
       return
@@ -62,6 +64,7 @@ export function DialogWorkspaceCreate(props: { onSelect: (workspaceID: string) =
   const project = useProject()
   const sdk = useSDK()
   const toast = useToast()
+  const { t } = useI18n()
   const [creating, setCreating] = createSignal<string>()
 
   onMount(() => {
@@ -73,17 +76,17 @@ export function DialogWorkspaceCreate(props: { onSelect: (workspaceID: string) =
     if (type) {
       return [
         {
-          title: `Creating ${type} workspace...`,
+          title: t().workspace_creating_type(type),
           value: "creating" as const,
-          description: "This can take a while for remote environments",
+          description: t().workspace_remote_wait,
         },
       ]
     }
     return [
       {
-        title: "Worktree",
+        title: t().workspace_worktree,
         value: "worktree" as const,
-        description: "Create a local git worktree",
+        description: t().workspace_worktree_desc,
       },
     ]
   })
@@ -97,7 +100,7 @@ export function DialogWorkspaceCreate(props: { onSelect: (workspaceID: string) =
     if (!workspace) {
       setCreating(undefined)
       toast.show({
-        message: "Failed to create workspace",
+        message: t().workspace_failed,
         variant: "error",
       })
       return
@@ -109,7 +112,7 @@ export function DialogWorkspaceCreate(props: { onSelect: (workspaceID: string) =
 
   return (
     <DialogSelect
-      title={creating() ? "Creating Workspace" : "New Workspace"}
+      title={creating() ? t().workspace_creating_title : t().workspace_new}
       skipFilter={true}
       options={options()}
       onSelect={(option) => {

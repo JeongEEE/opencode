@@ -5,6 +5,7 @@ import { Locale } from "@/util/locale"
 import { useTheme } from "../context/theme"
 import { useKeybind } from "../context/keybind"
 import { usePromptStash, type StashEntry } from "./prompt/stash"
+import { useI18n } from "@tui/context/i18n"
 
 function getRelativeTime(timestamp: number): string {
   const now = Date.now()
@@ -31,6 +32,7 @@ export function DialogStash(props: { onSelect: (entry: StashEntry) => void }) {
   const stash = usePromptStash()
   const { theme } = useTheme()
   const keybind = useKeybind()
+  const { t } = useI18n()
 
   const [toDelete, setToDelete] = createSignal<number>()
 
@@ -42,7 +44,7 @@ export function DialogStash(props: { onSelect: (entry: StashEntry) => void }) {
         const isDeleting = toDelete() === index
         const lineCount = (entry.input.match(/\n/g)?.length ?? 0) + 1
         return {
-          title: isDeleting ? `Press ${keybind.print("stash_delete")} again to confirm` : getStashPreview(entry.input),
+          title: isDeleting ? t().stash_confirm_delete(keybind.print("stash_delete")) : getStashPreview(entry.input),
           bg: isDeleting ? theme.error : undefined,
           value: index,
           description: getRelativeTime(entry.timestamp),
@@ -54,7 +56,7 @@ export function DialogStash(props: { onSelect: (entry: StashEntry) => void }) {
 
   return (
     <DialogSelect
-      title="Stash"
+      title={t().stash_title}
       options={options()}
       onMove={() => {
         setToDelete(undefined)
@@ -71,7 +73,7 @@ export function DialogStash(props: { onSelect: (entry: StashEntry) => void }) {
       keybind={[
         {
           keybind: keybind.all.stash_delete?.[0],
-          title: "delete",
+          title: t().stash_delete,
           onTrigger: (option) => {
             if (toDelete() === option.value) {
               stash.remove(option.value)

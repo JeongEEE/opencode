@@ -1,0 +1,490 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1776125388686,
+  "projectRoot": "/Users/jeong/Dev/MyProjects/opencode",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": "npm test",
+    "lintCommand": null,
+    "devCommand": "npm run dev",
+    "scripts": {
+      "dev": "bun run --cwd packages/opencode --conditions=browser src/index.ts",
+      "dev:desktop": "bun --cwd packages/desktop tauri dev",
+      "dev:web": "bun --cwd packages/app dev",
+      "dev:console": "ulimit -n 10240 2>/dev/null; bun run --cwd packages/console/app dev",
+      "dev:storybook": "bun --cwd packages/storybook storybook",
+      "typecheck": "bun turbo typecheck",
+      "postinstall": "bun run --cwd packages/opencode fix-node-pty",
+      "prepare": "husky",
+      "random": "echo 'Random script'",
+      "hello": "echo 'Hello World!'",
+      "test": "echo 'do not run tests from root' && exit 1"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": true,
+    "workspaces": [
+      "packages/*",
+      "packages/console/*",
+      "packages/sdk/js",
+      "packages/slack"
+    ],
+    "mainDirectories": [],
+    "gitBranches": {
+      "defaultBranch": "dev",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "github": {
+      "path": "github",
+      "purpose": null,
+      "fileCount": 8,
+      "lastAccessed": 1776125388634,
+      "keyFiles": [
+        "README.md",
+        "action.yml",
+        "bun.lock",
+        "index.ts",
+        "package.json"
+      ]
+    },
+    "infra": {
+      "path": "infra",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1776125388635,
+      "keyFiles": [
+        "app.ts",
+        "console.ts",
+        "enterprise.ts",
+        "secret.ts",
+        "stage.ts"
+      ]
+    },
+    "nix": {
+      "path": "nix",
+      "purpose": null,
+      "fileCount": 4,
+      "lastAccessed": 1776125388637,
+      "keyFiles": [
+        "desktop.nix",
+        "hashes.json",
+        "node_modules.nix",
+        "opencode.nix"
+      ]
+    },
+    "packages": {
+      "path": "packages",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1776125388637,
+      "keyFiles": []
+    },
+    "patches": {
+      "path": "patches",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1776125388637,
+      "keyFiles": [
+        "@standard-community%2Fstandard-openapi@0.2.9.patch",
+        "install-korean-ime-fix.sh",
+        "solid-js@1.9.10.patch"
+      ]
+    },
+    "script": {
+      "path": "script",
+      "purpose": null,
+      "fileCount": 13,
+      "lastAccessed": 1776125388637,
+      "keyFiles": [
+        "beta.ts",
+        "changelog.ts",
+        "duplicate-pr.ts",
+        "format.ts",
+        "generate.ts"
+      ]
+    },
+    "sdks": {
+      "path": "sdks",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1776125388637,
+      "keyFiles": []
+    },
+    "specs": {
+      "path": "specs",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1776125388638,
+      "keyFiles": [
+        "project.md"
+      ]
+    },
+    "nix/scripts": {
+      "path": "nix/scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 2,
+      "lastAccessed": 1776125388638,
+      "keyFiles": [
+        "canonicalize-node-modules.ts",
+        "normalize-bun-binaries.ts"
+      ]
+    },
+    "packages/app": {
+      "path": "packages/app",
+      "purpose": "Application code",
+      "fileCount": 13,
+      "lastAccessed": 1776125388638,
+      "keyFiles": [
+        "AGENTS.md",
+        "README.md",
+        "bunfig.toml"
+      ]
+    },
+    "packages/docs": {
+      "path": "packages/docs",
+      "purpose": "Documentation",
+      "fileCount": 8,
+      "lastAccessed": 1776125388638,
+      "keyFiles": [
+        "LICENSE",
+        "README.md",
+        "development.mdx"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/routes/session/index.tsx",
+      "accessCount": 127,
+      "lastAccessed": 1776146861612,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/component/prompt/index.tsx",
+      "accessCount": 49,
+      "lastAccessed": 1776146838590,
+      "type": "directory"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/app.tsx",
+      "accessCount": 33,
+      "lastAccessed": 1776143859353,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/i18n/en.ts",
+      "accessCount": 31,
+      "lastAccessed": 1776146736355,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/i18n/ko.ts",
+      "accessCount": 28,
+      "lastAccessed": 1776147242493,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/routes/session/permission.tsx",
+      "accessCount": 26,
+      "lastAccessed": 1776126932985,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/ui/dialog-export-options.tsx",
+      "accessCount": 15,
+      "lastAccessed": 1776128652775,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/component/dialog-provider.tsx",
+      "accessCount": 15,
+      "lastAccessed": 1776135502556,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui",
+      "accessCount": 15,
+      "lastAccessed": 1776146439838,
+      "type": "directory"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/component/dialog-status.tsx",
+      "accessCount": 14,
+      "lastAccessed": 1776128829425,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/component/dialog-session-list.tsx",
+      "accessCount": 14,
+      "lastAccessed": 1776146784941,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/routes/session/question.tsx",
+      "accessCount": 13,
+      "lastAccessed": 1776126994427,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/component/dialog-model.tsx",
+      "accessCount": 13,
+      "lastAccessed": 1776135476669,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/routes/home.tsx",
+      "accessCount": 10,
+      "lastAccessed": 1776130962527,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/component/dialog-go-upsell.tsx",
+      "accessCount": 9,
+      "lastAccessed": 1776128583701,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/ui/dialog-prompt.tsx",
+      "accessCount": 9,
+      "lastAccessed": 1776128653233,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/component/dialog-mcp.tsx",
+      "accessCount": 9,
+      "lastAccessed": 1776146772273,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/routes/session/subagent-footer.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1776128588332,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/ui/dialog-help.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1776128651958,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/context/i18n.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1776143478893,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/feature-plugins/sidebar/footer.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1776146287171,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/routes/session/dialog-timeline.tsx",
+      "accessCount": 7,
+      "lastAccessed": 1776135487580,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/ui/dialog-confirm.tsx",
+      "accessCount": 7,
+      "lastAccessed": 1776135487825,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/component/dialog-variant.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1776128530838,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/component/dialog-skill.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1776128531224,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/feature-plugins/sidebar/context.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1776128614530,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/ui/dialog-alert.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1776128650021,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/feature-plugins/sidebar/mcp.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1776146300484,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/component/dialog-command.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1776126039640,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/component/dialog-agent.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1776128530261,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/component/dialog-session-rename.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1776128530565,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/routes/session/dialog-subagent.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1776128588557,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/feature-plugins/sidebar/files.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1776128613576,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/routes/session/footer.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1776143062412,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/feature-plugins/sidebar/lsp.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1776146296052,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/feature-plugins/sidebar/todo.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1776128610919,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/config/tui-schema.ts",
+      "accessCount": 3,
+      "lastAccessed": 1776125756164,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/ui/toast.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1776126813807,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/config/tui.ts",
+      "accessCount": 2,
+      "lastAccessed": 1776125606954,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/component/startup-loading.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776126658316,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/context/kv.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776128959333,
+      "type": "directory"
+    },
+    {
+      "path": "packages/opencode/package.json",
+      "accessCount": 2,
+      "lastAccessed": 1776128968871,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src",
+      "accessCount": 2,
+      "lastAccessed": 1776143481220,
+      "type": "directory"
+    },
+    {
+      "path": "packages/opencode/src/util/locale.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776125461510,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/config/config.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776125476390,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/context/tui-config.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776125597691,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/context/helper.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776125602651,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/context/theme.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776125614342,
+      "type": "file"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/ui/dialog-select.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776126163732,
+      "type": "directory"
+    },
+    {
+      "path": "packages/opencode/src/cli/cmd/tui/i18n",
+      "accessCount": 1,
+      "lastAccessed": 1776128620507,
+      "type": "directory"
+    }
+  ],
+  "userDirectives": []
+}

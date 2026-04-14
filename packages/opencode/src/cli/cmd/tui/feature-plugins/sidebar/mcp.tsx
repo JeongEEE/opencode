@@ -1,9 +1,11 @@
 import type { TuiPlugin, TuiPluginApi, TuiPluginModule } from "@opencode-ai/plugin/tui"
 import { createMemo, For, Match, Show, Switch, createSignal } from "solid-js"
+import { useI18n } from "../../context/i18n"
 
 const id = "internal:sidebar-mcp"
 
 function View(props: { api: TuiPluginApi }) {
+  const { t } = useI18n()
   const [open, setOpen] = createSignal(true)
   const theme = () => props.api.theme.current
   const list = createMemo(() => props.api.state.mcp())
@@ -37,7 +39,7 @@ function View(props: { api: TuiPluginApi }) {
             <Show when={!open()}>
               <span style={{ fg: theme().textMuted }}>
                 {" "}
-                ({on()} active{bad() > 0 ? `, ${bad()} error${bad() > 1 ? "s" : ""}` : ""})
+                ({t().sidebar_mcp_active(on())}{bad() > 0 ? `, ${t().sidebar_mcp_errors(bad())}` : ""})
               </span>
             </Show>
           </text>
@@ -58,13 +60,13 @@ function View(props: { api: TuiPluginApi }) {
                   {item.name}{" "}
                   <span style={{ fg: theme().textMuted }}>
                     <Switch fallback={item.status}>
-                      <Match when={item.status === "connected"}>Connected</Match>
+                      <Match when={item.status === "connected"}>{t().status_connected}</Match>
                       <Match when={item.status === "failed"}>
                         <i>{item.error}</i>
                       </Match>
-                      <Match when={item.status === "disabled"}>Disabled</Match>
-                      <Match when={item.status === "needs_auth"}>Needs auth</Match>
-                      <Match when={item.status === "needs_client_registration"}>Needs client ID</Match>
+                      <Match when={item.status === "disabled"}>{t().mcp_disabled}</Match>
+                      <Match when={item.status === "needs_auth"}>{t().sidebar_mcp_needs_auth}</Match>
+                      <Match when={item.status === "needs_client_registration"}>{t().sidebar_mcp_needs_client_id}</Match>
                     </Switch>
                   </span>
                 </text>

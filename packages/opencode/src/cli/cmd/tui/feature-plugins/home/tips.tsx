@@ -1,12 +1,13 @@
 import type { TuiPlugin, TuiPluginModule } from "@opencode-ai/plugin/tui"
 import { createMemo, Show } from "solid-js"
 import { Tips } from "./tips-view"
+import { useI18n } from "@tui/context/i18n"
 
 const id = "internal:home-tips"
 
 function View(props: { show: boolean }) {
   return (
-    <box height={4} minHeight={0} width="100%" maxWidth={75} alignItems="center" paddingTop={3} flexShrink={1}>
+    <box minHeight={0} width="100%" maxWidth={75} alignItems="center" paddingTop={3} flexShrink={1}>
       <Show when={props.show}>
         <Tips />
       </Show>
@@ -15,19 +16,22 @@ function View(props: { show: boolean }) {
 }
 
 const tui: TuiPlugin = async (api) => {
-  api.command.register(() => [
-    {
-      title: api.kv.get("tips_hidden", false) ? "Show tips" : "Hide tips",
-      value: "tips.toggle",
-      keybind: "tips_toggle",
-      category: "System",
-      hidden: api.route.current.name !== "home",
-      onSelect() {
-        api.kv.set("tips_hidden", !api.kv.get("tips_hidden", false))
-        api.ui.dialog.clear()
+  api.command.register(() => {
+    const { t } = useI18n()
+    return [
+      {
+        title: api.kv.get("tips_hidden", false) ? t().tips_show : t().tips_hide,
+        value: "tips.toggle",
+        keybind: "tips_toggle",
+        category: "System",
+        hidden: api.route.current.name !== "home",
+        onSelect() {
+          api.kv.set("tips_hidden", !api.kv.get("tips_hidden", false))
+          api.ui.dialog.clear()
+        },
       },
-    },
-  ])
+    ]
+  })
 
   api.slots.register({
     order: 100,

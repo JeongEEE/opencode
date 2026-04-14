@@ -11,6 +11,7 @@ const KeybindOverride = z
   .strict()
 
 export const TuiOptions = z.object({
+  language: z.enum(["en", "ko"]).optional().describe("TUI display language (default: en)"),
   scroll_speed: z.number().min(0.001).optional().describe("TUI scroll speed"),
   scroll_acceleration: z
     .object({
