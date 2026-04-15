@@ -42,7 +42,7 @@ export function Tips() {
 
   return (
     <box flexDirection="row" width="100%">
-      <text flexShrink={0} style={{ fg: theme.warning }}>
+      <text flexShrink={0} style={{ fg: theme.accent }}>
         ● Tip{" "}
       </text>
       <text flexShrink={1} wrapMode="word">

@@ -9,12 +9,12 @@
     "darkStep6": "#3c3c3c",
     "darkStep7": "#484848",
     "darkStep8": "#606060",
-    "darkStep9": "#fab283",
+    "darkStep9": "#C4B5FD",
     "darkStep10": "#ffc09f",
     "darkStep11": "#808080",
     "darkStep12": "#eeeeee",
-    "darkSecondary": "#5c9cf5",
-    "darkAccent": "#9d7cd8",
+    "darkSecondary": "#C4B5FD",
+    "darkAccent": "#C4B5FD",
     "darkRed": "#e06c75",
     "darkOrange": "#f5a742",
     "darkGreen": "#7fd88f",
@@ -28,12 +28,12 @@
     "lightStep6": "#d4d4d4",
     "lightStep7": "#b8b8b8",
     "lightStep8": "#a0a0a0",
-    "lightStep9": "#3b7dd8",
+    "lightStep9": "#8B5CF6",
     "lightStep10": "#2968c3",
     "lightStep11": "#8a8a8a",
     "lightStep12": "#1a1a1a",
     "lightSecondary": "#7b5bb6",
-    "lightAccent": "#d68c27",
+    "lightAccent": "#7B3FA0",
     "lightRed": "#d1383d",
     "lightOrange": "#d68c27",
     "lightGreen": "#3d9a57",
@@ -178,8 +178,8 @@
       "light": "lightYellow"
     },
     "markdownStrong": {
-      "dark": "darkOrange",
-      "light": "lightOrange"
+      "dark": "darkAccent",
+      "light": "lightAccent"
     },
     "markdownHorizontalRule": {
       "dark": "darkStep11",
@@ -226,8 +226,8 @@
       "light": "lightGreen"
     },
     "syntaxNumber": {
-      "dark": "darkOrange",
-      "light": "lightOrange"
+      "dark": "darkAccent",
+      "light": "lightAccent"
     },
     "syntaxType": {
       "dark": "darkYellow",
