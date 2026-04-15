@@ -10,6 +10,12 @@ import { useSDK } from "../context/sdk"
 import { useToast } from "../ui/toast"
 import { useI18n } from "@tui/context/i18n"
 
+type Adaptor = {
+  type: string
+  name: string
+  description: string
+}
+
 function scoped(sdk: ReturnType<typeof useSDK>, sync: ReturnType<typeof useSync>, workspaceID: string) {
   return createOpencodeClient({
     baseUrl: sdk.url,
@@ -66,9 +72,27 @@ export function DialogWorkspaceCreate(props: { onSelect: (workspaceID: string) =
   const toast = useToast()
   const { t } = useI18n()
   const [creating, setCreating] = createSignal<string>()
+  const [adaptors, setAdaptors] = createSignal<Adaptor[]>()
 
   onMount(() => {
     dialog.setSize("medium")
+    void (async () => {
+      const dir = sync.path.directory || sdk.directory
+      const url = new URL("/experimental/workspace/adaptor", sdk.url)
+      if (dir) url.searchParams.set("directory", dir)
+      const res = await sdk
+        .fetch(url)
+        .then((x) => x.json() as Promise<Adaptor[]>)
+        .catch(() => undefined)
+      if (!res) {
+        toast.show({
+          message: "Failed to load workspace adaptors",
+          variant: "error",
+        })
+        return
+      }
+      setAdaptors(res)
+    })()
   })
 
   const options = createMemo(() => {
@@ -82,13 +106,21 @@ export function DialogWorkspaceCreate(props: { onSelect: (workspaceID: string) =
         },
       ]
     }
-    return [
-      {
-        title: t().workspace_worktree,
-        value: "worktree" as const,
-        description: t().workspace_worktree_desc,
-      },
-    ]
+    const list = adaptors()
+    if (!list) {
+      return [
+        {
+          title: t().workspace_loading,
+          value: "loading" as const,
+          description: t().workspace_loading_desc,
+        },
+      ]
+    }
+    return list.map((item) => ({
+      title: item.name,
+      value: item.type,
+      description: item.description,
+    }))
   })
 
   const create = async (type: string) => {
@@ -116,7 +148,7 @@ export function DialogWorkspaceCreate(props: { onSelect: (workspaceID: string) =
       skipFilter={true}
       options={options()}
       onSelect={(option) => {
-        if (option.value === "creating") return
+        if (option.value === "creating" || option.value === "loading") return
         void create(option.value)
       }}
     />

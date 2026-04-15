@@ -323,6 +323,8 @@ export const en = {
   workspace_remote_wait: "This can take a while for remote environments",
   workspace_worktree: "Worktree",
   workspace_worktree_desc: "Create a local git worktree",
+  workspace_loading: "Loading workspaces...",
+  workspace_loading_desc: "Fetching available workspace adaptors",
   workspace_failed: "Failed to create workspace",
   workspace_session_failed: "Failed to create workspace session",
 

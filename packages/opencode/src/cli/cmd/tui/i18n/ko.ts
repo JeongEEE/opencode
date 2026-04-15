@@ -325,6 +325,8 @@ export const ko: Translations = {
   workspace_remote_wait: "원격 환경에서는 시간이 걸릴 수 있습니다",
   workspace_worktree: "워크트리",
   workspace_worktree_desc: "로컬 git 워크트리 생성",
+  workspace_loading: "워크스페이스 불러오는 중...",
+  workspace_loading_desc: "사용 가능한 워크스페이스 어댑터를 가져오는 중",
   workspace_failed: "워크스페이스 생성에 실패했습니다",
   workspace_session_failed: "워크스페이스 세션 생성에 실패했습니다",
 
