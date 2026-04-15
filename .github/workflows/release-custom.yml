@@ -1,0 +1,59 @@
+name: release-custom
+
+on:
+  push:
+    branches:
+      - my-custom-release
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup-bun
+
+      - name: Get next version
+        id: version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LATEST=$(gh release list --repo JeongEEE/opencode --limit 1 --json tagName --jq '.[0].tagName // empty' 2>/dev/null || echo "")
+          if [ -z "$LATEST" ]; then
+            echo "version=1.0.0" >> $GITHUB_OUTPUT
+          else
+            LATEST=${LATEST#v}
+            IFS='.' read -r major minor patch <<< "$LATEST"
+            echo "version=${major}.${minor}.$((patch + 1))" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build
+        working-directory: packages/opencode
+        run: bun run script/build.ts
+        env:
+          OPENCODE_VERSION: ${{ steps.version.outputs.version }}
+
+      - name: Package darwin binaries
+        working-directory: packages/opencode/dist
+        run: |
+          (cd opencode-darwin-arm64/bin && zip -r ../../opencode-darwin-arm64.zip *)
+          (cd opencode-darwin-x64/bin && zip -r ../../opencode-darwin-x64.zip *)
+          (cd opencode-darwin-x64-baseline/bin && zip -r ../../opencode-darwin-x64-baseline.zip *)
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          prerelease: false
+          make_latest: true
+          files: |
+            packages/opencode/dist/opencode-darwin-arm64.zip
+            packages/opencode/dist/opencode-darwin-x64.zip
+            packages/opencode/dist/opencode-darwin-x64-baseline.zip
+            install

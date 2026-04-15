@@ -152,6 +152,7 @@ export const en = {
   cmd_session_undo: "Undo previous message",
   cmd_session_redo: "Redo",
   cmd_session_sidebar: (visible: boolean): string => (visible ? "Hide sidebar" : "Show sidebar"),
+  cmd_session_bottombar: (visible: boolean): string => (visible ? "Hide bottom bar" : "Show bottom bar"),
   cmd_session_conceal: (on: boolean): string => (on ? "Disable code concealment" : "Enable code concealment"),
   cmd_session_timestamps: (on: boolean): string => (on ? "Hide timestamps" : "Show timestamps"),
   cmd_session_thinking: (on: boolean): string => (on ? "Hide thinking" : "Show thinking"),

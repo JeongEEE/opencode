@@ -61,7 +61,6 @@ function View(props: { api: TuiPluginApi }) {
       paddingTop={1}
       paddingBottom={1}
       paddingLeft={2}
-      paddingRight={2}
       flexDirection="row"
       flexShrink={0}
       gap={2}
@@ -70,6 +69,7 @@ function View(props: { api: TuiPluginApi }) {
       <Mcp api={props.api} />
       <box flexGrow={1} />
       <Version api={props.api} />
+      <box width={2} />
     </box>
   )
 }

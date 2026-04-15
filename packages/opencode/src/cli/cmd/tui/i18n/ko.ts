@@ -154,6 +154,7 @@ export const ko: Translations = {
   cmd_session_undo: "이전 메시지 취소",
   cmd_session_redo: "다시 실행",
   cmd_session_sidebar: (visible) => (visible ? "사이드바 숨기기" : "사이드바 표시"),
+  cmd_session_bottombar: (visible: boolean): string => (visible ? "바텀바 숨기기" : "바텀바 표시"),
   cmd_session_conceal: (on) => (on ? "코드 숨김 비활성화" : "코드 숨김 활성화"),
   cmd_session_timestamps: (on) => (on ? "타임스탬프 숨기기" : "타임스탬프 표시"),
   cmd_session_thinking: (on) => (on ? "생각 숨기기" : "생각 표시"),

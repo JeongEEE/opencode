@@ -63,6 +63,7 @@ import { DialogTimeline } from "./dialog-timeline"
 import { DialogForkFromTimeline } from "./dialog-fork-from-timeline"
 import { DialogSessionRename } from "../../component/dialog-session-rename"
 import { Sidebar } from "./sidebar"
+import { BottomBar } from "./bottombar"
 import { SubagentFooter } from "./subagent-footer.tsx"
 import { Flag } from "@/flag/flag"
 import { LANGUAGE_EXTENSIONS } from "@/lsp/language"
@@ -154,6 +155,7 @@ export function Session() {
 
   const dimensions = useTerminalDimensions()
   const [sidebar, setSidebar] = kv.signal<"auto" | "hide">("sidebar", "auto")
+  const [bottombar, setBottombar] = kv.signal<"show" | "hide">("bottombar", "show")
   const [sidebarOpen, setSidebarOpen] = createSignal(false)
   const [conceal, setConceal] = createSignal(true)
   const [showThinking, setShowThinking] = kv.signal("thinking_visibility", true)
@@ -172,6 +174,7 @@ export function Session() {
     if (sidebar() === "auto" && wide()) return true
     return false
   })
+  const bottombarVisible = createMemo(() => !session()?.parentID && bottombar() === "show")
   const showTimestamps = createMemo(() => timestamps() === "show")
   const contentWidth = createMemo(() => dimensions().width - (sidebarVisible() ? 42 : 0) - 4)
   const providers = createMemo(() => Model.index(sync.data.provider))
@@ -594,6 +597,15 @@ export function Session() {
           setSidebar(() => (isVisible ? "hide" : "auto"))
           setSidebarOpen(!isVisible)
         })
+        dialog.clear()
+      },
+    },
+    {
+      title: t().cmd_session_bottombar(bottombarVisible()),
+      value: "session.bottombar.toggle",
+      category: t().cat_session,
+      onSelect: (dialog) => {
+        setBottombar((prev) => (prev === "show" ? "hide" : "show"))
         dialog.clear()
       },
     },
@@ -1063,7 +1075,7 @@ export function Session() {
             <scrollbox
               ref={(r) => (scroll = r)}
               viewportOptions={{
-                paddingRight: showScrollbar() ? 1 : 0,
+                paddingRight: showScrollbar() ? 3 : 2,
               }}
               verticalScrollbarOptions={{
                 paddingLeft: 1,
@@ -1172,7 +1184,7 @@ export function Session() {
                 )}
               </For>
             </scrollbox>
-            <box flexShrink={0}>
+            <box flexShrink={0} paddingRight={2}>
               <Show when={permissions().length > 0}>
                 <PermissionPrompt request={permissions()[0]} />
               </Show>
@@ -1200,9 +1212,13 @@ export function Session() {
                       toBottom()
                     }}
                     sessionID={route.sessionID}
+                    showUsage={!bottombarVisible()}
                     right={<TuiPluginRuntime.Slot name="session_prompt_right" session_id={route.sessionID} />}
                   />
                 </TuiPluginRuntime.Slot>
+                <Show when={bottombarVisible()}>
+                  <BottomBar sessionID={route.sessionID} />
+                </Show>
               </Show>
             </box>
           </Show>
