@@ -238,6 +238,7 @@ function mapGlyphs() {
 }
 
 const MAP = mapGlyphs()
+const CELLS = FULL.flatMap((line, y) => [...line].flatMap((char, x) => (lit(char) ? [{ x, y }] : [])))
 
 function shimmer(x: number, y: number, frame: Frame) {
   return frame.list.reduce((best, item) => {
@@ -401,6 +402,8 @@ export function Logo() {
   const [now, setNow] = createSignal(0)
   let box: BoxRenderable | undefined
   let timer: ReturnType<typeof setInterval> | undefined
+  let loop: ReturnType<typeof setInterval> | undefined
+  let pending: ReturnType<typeof setTimeout> | undefined
   let hum = false
 
   const stop = () => {
@@ -439,6 +442,17 @@ export function Logo() {
     if (timer) return
     timer = setInterval(tick, 16)
   }
+
+  const fire = () => {
+    if (hold()) return
+    const cell = CELLS[Math.floor(Math.random() * CELLS.length)]
+    if (!cell) return
+    press(cell.x, cell.y, performance.now() - CHARGE * 0.6)
+    hum = true
+    pending = setTimeout(() => burst(cell.x, cell.y), 50)
+  }
+
+  loop = setInterval(fire, 5000)
 
   const hit = (x: number, y: number) => {
     const char = FULL[y]?.[x]
@@ -583,6 +597,8 @@ export function Logo() {
 
   onCleanup(() => {
     stop()
+    clearInterval(loop)
+    clearTimeout(pending)
     hum = false
     Sound.dispose()
   })
