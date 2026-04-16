@@ -137,7 +137,7 @@ chmod +x packages/opencode/bin/purplecode
 **옵션 1 — 심볼릭 링크** (영구 적용, 권장):
 
 ```bash
-ln -sf /절대경로/opencode/packages/opencode/bin/purplecode ~/.local/bin/purplecode
+ln -sf /절대경로/opencode/packages/opencode/bin/purplecode ~/.local/bin/pcode-dev
 # ~/.local/bin 이 PATH에 없다면:
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
 ```
@@ -146,7 +146,7 @@ echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
 
 ```bash
 # 영구 적용: ~/.zshrc 에 추가
-alias purplecode="/절대경로/opencode/packages/opencode/bin/purplecode"
+alias pcode-dev="/절대경로/opencode/packages/opencode/bin/purplecode"
 ```
 
 #### `~/.zshrc` 실제 설정 예시
@@ -155,8 +155,8 @@ alias purplecode="/절대경로/opencode/packages/opencode/bin/purplecode"
 # PostHog 텔레메트리 비활성화
 export OMO_DISABLE_POSTHOG=true
 
-# pcode 명령으로 로컬 소스 실행
-alias pcode="/Users/jeong/Dev/MyProjects/opencode/packages/opencode/bin/purplecode"
+# pcode-dev 명령으로 로컬 소스 실행 (pcode는 설치된 릴리즈 버전)
+alias pcode-dev="/Users/jeong/Dev/MyProjects/opencode/packages/opencode/bin/purplecode"
 ```
 
 #### 3단계: 사용
@@ -164,10 +164,10 @@ alias pcode="/Users/jeong/Dev/MyProjects/opencode/packages/opencode/bin/purpleco
 ```bash
 # 원하는 프로젝트 경로로 이동 후 실행
 cd ~/Dev/MyProjects/some-project
-purplecode
+pcode-dev
 
 # 또는 경로를 직접 지정
-purplecode /절대경로/some-project
+pcode-dev /절대경로/some-project
 ```
 
 > **충돌 없음**: `opencode` 명령명을 사용하지 않으므로 전역 설치와 완전히 독립적입니다.
@@ -182,7 +182,7 @@ purplecode /절대경로/some-project
 | B. 셸 alias | ⚠️ 세션 내 덮어씀 | ❌ 불필요 | ✅ 즉시 | ❌ opencode 디렉토리만 | 명령어 테스트 |
 | C. 네이티브 빌드 | ✅ 없음 (별도 경로) | ✅ 필요 | ❌ 재빌드 필요 | ✅ 가능 | 성능 테스트 |
 | D. 환경 변수 | ✅ 없음 | ✅ 필요 | ❌ 재빌드 필요 | ✅ 가능 | CI / 스크립트 |
-| **E. purplecode 스크립트** | ✅ 없음 | ❌ 불필요 | ✅ 즉시 | ✅ **어디서든 가능** | **일반 개발 + 다른 프로젝트** |
+| **E. pcode-dev 스크립트** | ✅ 없음 | ❌ 불필요 | ✅ 즉시 | ✅ **어디서든 가능** | **일반 개발 + 다른 프로젝트** |
 
 ---
 

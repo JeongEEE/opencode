@@ -174,7 +174,8 @@ rm -rf ~/.opencode
 
 | | 이 맥 (개발용) | 다른 맥 (설치 후) |
 |--|---|---|
-| `pcode` 실행 | 로컬 소스 직접 실행 (`purplecode` alias) | 설치된 커스텀 바이너리 실행 (symlink) |
+| `pcode-dev` 실행 | 로컬 소스 직접 실행 (`purplecode` alias) | — |
+| `pcode` 실행 | — | 설치된 커스텀 바이너리 실행 (symlink) |
 | 코드 수정 즉시 반영 | ✅ | ❌ (재배포 후 upgrade 필요) |
 | 자동 업데이트 | ❌ | ✅ |
 
