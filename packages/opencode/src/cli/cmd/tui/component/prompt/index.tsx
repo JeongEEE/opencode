@@ -1221,6 +1221,9 @@ export function Prompt(props: PromptProps) {
                   </text>
                 </Match>
               </Switch>
+              <text fg={theme.text}>
+                {keybind.print("app_exit")} <span style={{ fg: theme.textMuted }}>{t().prompt_exit}</span>
+              </text>
             </box>
           </Show>
         </box>

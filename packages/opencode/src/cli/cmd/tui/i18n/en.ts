@@ -380,6 +380,7 @@ export const en = {
   prompt_exit_shell: "exit shell mode",
   prompt_agents: "agents",
   prompt_commands: "commands",
+  prompt_exit: "exit",
   prompt_click_expand: "(click to expand)",
   prompt_retry: (duration: string, attempt: number): string =>
     `retrying${duration ? ` in ${duration}` : ""} attempt #${attempt}`,

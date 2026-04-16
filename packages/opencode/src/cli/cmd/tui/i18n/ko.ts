@@ -382,6 +382,7 @@ export const ko: Translations = {
   prompt_exit_shell: "shell 모드 종료",
   prompt_agents: "에이전트",
   prompt_commands: "커맨드",
+  prompt_exit: "종료",
   prompt_click_expand: "(클릭하여 펼치기)",
   prompt_retry: (duration, attempt) => `재시도${duration ? ` ${duration} 후` : ""} #${attempt}번째 시도`,
   prompt_retry_gemini: "gemini가 너무 과부하 상태입니다",
