@@ -1091,15 +1091,22 @@ export function Prompt(props: PromptProps) {
             <box flexDirection="row" flexShrink={0} paddingTop={1} gap={1} justifyContent="space-between">
               <box flexDirection="row" gap={1}>
                 <text fg={highlight()}>
-                  {store.mode === "shell" ? "Shell" : Locale.titlecase(local.agent.current().name)}
+                  {store.mode === "shell" ? "Shell" : Locale.titlecase(local.agent.current().name)}{" "}
                 </text>
-                <text fg={keybind.leader ? theme.textMuted : theme.text}>
-                  {store.mode !== "normal" ? "" : [
-                    local.model.parsed().model,
-                    currentProviderLabel(),
-                    ...(showVariant() ? ["·", local.model.variant.current()] : []),
-                  ].join(" ")}
-                </text>
+                <Show when={store.mode === "normal"}>
+                  <box flexDirection="row" gap={1}>
+                    <text flexShrink={0} fg={keybind.leader ? theme.textMuted : theme.text}>
+                      {local.model.parsed().model}
+                    </text>
+                    <text fg={theme.textMuted}>{currentProviderLabel()}</text>
+                    <Show when={showVariant()}>
+                      <text fg={theme.textMuted}>·</text>
+                      <text>
+                        <span style={{ fg: theme.warning, bold: true }}>{local.model.variant.current()}</span>
+                      </text>
+                    </Show>
+                  </box>
+                </Show>
               </box>
               <Show when={hasRightContent()}>
                 <box flexDirection="row" gap={1} alignItems="center">
