@@ -23,8 +23,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          UPSTREAM=$(gh release list --repo anomalyco/opencode --limit 1 --json tagName --jq '.[0].tagName // empty' 2>/dev/null || echo "")
-          CUSTOM=$(gh release list --repo JeongEEE/opencode --limit 1 --json tagName --jq '.[0].tagName // empty' 2>/dev/null || echo "")
+          UPSTREAM=$(gh release view --repo anomalyco/opencode --json tagName --jq '.tagName // empty' 2>/dev/null || echo "")
+          CUSTOM=$(gh release view --repo JeongEEE/opencode --json tagName --jq '.tagName // empty' 2>/dev/null || echo "")
 
           UPSTREAM=${UPSTREAM#v}
           CUSTOM=${CUSTOM#v}
