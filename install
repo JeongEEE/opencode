@@ -6,22 +6,24 @@ MUTED='\033[0;2m'
 RED='\033[0;31m'
 ORANGE='\033[38;5;214m'
 NC='\033[0m' # No Color
+PURPLE='\033[38;2;196;181;253m'
+BOLD='\033[1m'
 
 usage() {
     cat <<EOF
-OpenCode Installer
+PurpleCode Installer
 
 Usage: install.sh [options]
 
 Options:
     -h, --help              Display this help message
-    -v, --version <version> Install a specific version (e.g., 1.0.180)
+    -v, --version <version> Install a specific version (e.g., 1.4.3)
     -b, --binary <path>     Install from a local binary instead of downloading
         --no-modify-path    Don't modify shell config files (.zshrc, .bashrc, etc.)
 
 Examples:
-    curl -fsSL https://opencode.ai/install | bash
-    curl -fsSL https://opencode.ai/install | bash -s -- --version 1.0.180
+    curl -fsSL https://github.com/JeongEEE/opencode/releases/latest/download/install | bash
+    curl -fsSL https://github.com/JeongEEE/opencode/releases/latest/download/install | bash -s -- --version 1.4.3
     ./install --binary /path/to/opencode
 EOF
 }
@@ -325,7 +327,7 @@ download_with_progress() {
 }
 
 download_and_install() {
-    print_message info "\n${MUTED}Installing ${NC}opencode ${MUTED}version: ${NC}$specific_version"
+    print_message info "\n${MUTED}Installing ${NC}PurpleCode ${MUTED}version: ${NC}$specific_version"
     local tmp_dir="${TMPDIR:-/tmp}/opencode_install_$$"
     mkdir -p "$tmp_dir"
 
@@ -347,7 +349,7 @@ download_and_install() {
 }
 
 install_from_binary() {
-    print_message info "\n${MUTED}Installing ${NC}opencode ${MUTED}from: ${NC}$binary_path"
+    print_message info "\n${MUTED}Installing ${NC}PurpleCode ${MUTED}from: ${NC}$binary_path"
     cp "$binary_path" "${INSTALL_DIR}/opencode"
     chmod 755 "${INSTALL_DIR}/opencode"
     ln -sf "${INSTALL_DIR}/opencode" "${INSTALL_DIR}/pcode"
@@ -368,9 +370,9 @@ add_to_path() {
     if grep -Fxq "$command" "$config_file"; then
         print_message info "Command already exists in $config_file, skipping write."
     elif [[ -w $config_file ]]; then
-        echo -e "\n# opencode" >> "$config_file"
+        echo -e "\n# pcode" >> "$config_file"
         echo "$command" >> "$config_file"
-        print_message info "${MUTED}Successfully added ${NC}opencode ${MUTED}to \$PATH in ${NC}$config_file"
+        print_message info "${MUTED}Successfully added ${NC}pcode ${MUTED}to \$PATH in ${NC}$config_file"
     else
         print_message warning "Manually add the directory to $config_file (or similar):"
         print_message info "  $command"
@@ -454,17 +456,15 @@ if [ -n "${GITHUB_ACTIONS-}" ] && [ "${GITHUB_ACTIONS}" == "true" ]; then
 fi
 
 echo -e ""
-echo -e "${MUTED}                    ${NC}             ▄     "
-echo -e "${MUTED}█▀▀█ █▀▀█ █▀▀█ █▀▀▄ ${NC}█▀▀▀ █▀▀█ █▀▀█ █▀▀█"
-echo -e "${MUTED}█░░█ █░░█ █▀▀▀ █░░█ ${NC}█░░░ █░░█ █░░█ █▀▀▀"
-echo -e "${MUTED}▀▀▀▀ █▀▀▀ ▀▀▀▀ ▀  ▀ ${NC}▀▀▀▀ ▀▀▀▀ ▀▀▀▀ ▀▀▀▀"
+echo -e "${PURPLE}                              ${NC}${BOLD}             ▄     ${NC}"
+echo -e "${PURPLE}█▀▀█ █  █ █▀▀▄ █▀▀█ █    █▀▀█ ${NC}${BOLD}█▀▀▀ █▀▀█ █▀▀█ █▀▀█${NC}"
+echo -e "${PURPLE}█▀▀▀ █  █ █    █▀▀▀ █    █▀▀▀ ${NC}${BOLD}█    █  █ █  █ █▀▀▀${NC}"
+echo -e "${PURPLE}█    ▀▀▀▀ ▀    █    ▀▀▀▀ ▀▀▀▀ ${NC}${BOLD}▀▀▀▀ ▀▀▀▀ ▀▀▀▀ ▀▀▀▀${NC}"
 echo -e ""
 echo -e ""
-echo -e "${MUTED}OpenCode includes free models, to start:${NC}"
+echo -e "${MUTED}PurpleCode 설치 완료. 시작하려면:${NC}"
 echo -e ""
-echo -e "cd <project>  ${MUTED}# Open directory${NC}"
-echo -e "opencode      ${MUTED}# Run command${NC}"
+echo -e "cd <project>  ${MUTED}# 프로젝트 디렉토리 이동${NC}"
+echo -e "pcode         ${MUTED}# 실행${NC}"
 echo -e ""
-echo -e "${MUTED}For more information visit ${NC}https://opencode.ai/docs"
-echo -e ""
-echo -e ""
+echo -e "${MUTED}자세한 정보: ${NC}https://opencode.ai/docs"
