@@ -56,6 +56,13 @@ jobs:
           (cd opencode-darwin-x64/bin && zip -r ../../opencode-darwin-x64.zip *)
           (cd opencode-darwin-x64-baseline/bin && zip -r ../../opencode-darwin-x64-baseline.zip *)
 
+      - name: Package linux binaries
+        working-directory: packages/opencode/dist
+        run: |
+          (cd opencode-linux-x64/bin && tar -czf ../../opencode-linux-x64.tar.gz *)
+          (cd opencode-linux-arm64/bin && tar -czf ../../opencode-linux-arm64.tar.gz *)
+          (cd opencode-linux-x64-baseline/bin && tar -czf ../../opencode-linux-x64-baseline.tar.gz *)
+
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
@@ -67,4 +74,7 @@ jobs:
             packages/opencode/dist/opencode-darwin-arm64.zip
             packages/opencode/dist/opencode-darwin-x64.zip
             packages/opencode/dist/opencode-darwin-x64-baseline.zip
+            packages/opencode/dist/opencode-linux-x64.tar.gz
+            packages/opencode/dist/opencode-linux-arm64.tar.gz
+            packages/opencode/dist/opencode-linux-x64-baseline.tar.gz
             install
