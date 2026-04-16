@@ -3,7 +3,7 @@ import { DialogSelect } from "@tui/ui/dialog-select"
 import { useRoute } from "@tui/context/route"
 import { useSync } from "@tui/context/sync"
 import { createMemo, createResource, createSignal, onMount } from "solid-js"
-import { Locale } from "@/util/locale"
+import { Locale } from "@/util"
 import { useProject } from "@tui/context/project"
 import { useKeybind } from "../context/keybind"
 import { useTheme } from "../context/theme"
@@ -11,7 +11,7 @@ import { useI18n } from "../context/i18n"
 import { useSDK } from "../context/sdk"
 import { Flag } from "@/flag/flag"
 import { DialogSessionRename } from "./dialog-session-rename"
-import { Keybind } from "@/util/keybind"
+import { Keybind } from "@/util"
 import { createDebouncedSignal } from "../util/signal"
 import { useToast } from "../ui/toast"
 import { DialogWorkspaceCreate, openWorkspaceSession } from "./dialog-workspace-create"
@@ -148,7 +148,7 @@ export function DialogSessionList() {
           title: t().session_list_delete,
           onTrigger: async (option) => {
             if (toDelete() === option.value) {
-              sdk.client.session.delete({
+              void sdk.client.session.delete({
                 sessionID: option.value,
               })
               setToDelete(undefined)

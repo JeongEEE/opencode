@@ -3,8 +3,8 @@ import { createEffect, createMemo, For, Show, type Accessor, type JSX } from "so
 import { createStore } from "solid-js/store"
 import { createSortable } from "@thisbeyond/solid-dnd"
 import { createMediaQuery } from "@solid-primitives/media"
-import { base64Encode } from "@opencode-ai/util/encode"
-import { getFilename } from "@opencode-ai/util/path"
+import { base64Encode } from "@opencode-ai/shared/util/encode"
+import { getFilename } from "@opencode-ai/shared/util/path"
 import { Button } from "@opencode-ai/ui/button"
 import { Collapsible } from "@opencode-ai/ui/collapsible"
 import { DropdownMenu } from "@opencode-ai/ui/dropdown-menu"
@@ -277,7 +277,7 @@ const WorkspaceSessionList = (props: {
           class="flex w-full text-left justify-start text-14-regular text-text-weak pl-2 pr-10"
           size="large"
           onClick={(e: MouseEvent) => {
-            props.loadMore()
+            void props.loadMore()
             ;(e.currentTarget as HTMLButtonElement).blur()
           }}
         >
