@@ -388,7 +388,7 @@ case $current_shell in
         config_files="${ZDOTDIR:-$HOME}/.zshrc ${ZDOTDIR:-$HOME}/.zshenv $XDG_CONFIG_HOME/zsh/.zshrc $XDG_CONFIG_HOME/zsh/.zshenv"
     ;;
     bash)
-        config_files="$HOME/.bashrc $HOME/.bash_profile $HOME/.profile $XDG_CONFIG_HOME/bash/.bashrc $XDG_CONFIG_HOME/bash/.bash_profile"
+        config_files="$HOME/.bash_profile $HOME/.bashrc $HOME/.profile $XDG_CONFIG_HOME/bash/.bash_profile $XDG_CONFIG_HOME/bash/.bashrc"
     ;;
     ash)
         config_files="$HOME/.ashrc $HOME/.profile /etc/profile"
@@ -411,10 +411,20 @@ if [[ "$no_modify_path" != "true" ]]; then
         fi
     done
 
+    # 기존 파일이 없으면 셸 기본 설정 파일을 새로 생성
     if [[ -z $config_file ]]; then
-        print_message warning "No config file found for $current_shell. You may need to manually add to PATH:"
-        print_message info "  export PATH=$INSTALL_DIR:\$PATH"
-    elif [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
+        case $current_shell in
+            zsh)  config_file="${ZDOTDIR:-$HOME}/.zshrc" ;;
+            bash) config_file="$HOME/.bash_profile" ;;
+            fish) config_file="$HOME/.config/fish/config.fish" ;;
+            *)    config_file="$HOME/.profile" ;;
+        esac
+        mkdir -p "$(dirname "$config_file")"
+        touch "$config_file"
+        print_message info "${MUTED}Created ${NC}$config_file"
+    fi
+
+    if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
         case $current_shell in
             fish)
                 add_to_path "$config_file" "fish_add_path $INSTALL_DIR"
@@ -432,9 +442,7 @@ if [[ "$no_modify_path" != "true" ]]; then
                 add_to_path "$config_file" "export PATH=$INSTALL_DIR:\$PATH"
             ;;
             *)
-                export PATH=$INSTALL_DIR:$PATH
-                print_message warning "Manually add the directory to $config_file (or similar):"
-                print_message info "  export PATH=$INSTALL_DIR:\$PATH"
+                add_to_path "$config_file" "export PATH=$INSTALL_DIR:\$PATH"
             ;;
         esac
     fi

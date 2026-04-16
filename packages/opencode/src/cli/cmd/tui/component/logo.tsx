@@ -1,7 +1,7 @@
 import { BoxRenderable, MouseButton, MouseEvent, RGBA, TextAttributes } from "@opentui/core"
 import { For, createMemo, createSignal, onCleanup, type JSX } from "solid-js"
 import { useTheme, tint } from "@tui/context/theme"
-import { Sound } from "@tui/util/sound"
+// import { Sound } from "@tui/util/sound"
 import { logo } from "@/cli/logo"
 
 // Shadow markers (rendered chars in parens):
@@ -404,7 +404,7 @@ export function Logo() {
   let timer: ReturnType<typeof setInterval> | undefined
   let loop: ReturnType<typeof setInterval> | undefined
   let pending: ReturnType<typeof setTimeout> | undefined
-  let hum = false
+  // let hum = false
 
   const stop = () => {
     if (!timer) return
@@ -416,10 +416,10 @@ export function Logo() {
     const t = performance.now()
     setNow(t)
     const item = hold()
-    if (item && !hum && t - item.at >= HOLD) {
-      hum = true
-      Sound.start()
-    }
+    // if (item && !hum && t - item.at >= HOLD) {
+    //   hum = true
+    //   Sound.start()
+    // }
     if (item && t - item.at >= CHARGE) {
       burst(item.x, item.y)
     }
@@ -448,7 +448,7 @@ export function Logo() {
     const cell = CELLS[Math.floor(Math.random() * CELLS.length)]
     if (!cell) return
     press(cell.x, cell.y, performance.now() - CHARGE * 0.6)
-    hum = true
+    // hum = true
     pending = setTimeout(() => burst(cell.x, cell.y), 50)
   }
 
@@ -465,14 +465,14 @@ export function Logo() {
     setNow(t)
     if (!last) setRelease(undefined)
     setHold({ x, y, at: t, glyph: select(x, y) })
-    hum = false
+    // hum = false
     start()
   }
 
   const burst = (x: number, y: number) => {
     const item = hold()
     if (!item) return
-    hum = false
+    // hum = false
     const t = performance.now()
     const age = t - item.at
     const rise = ramp(age, HOLD, CHARGE)
@@ -494,7 +494,7 @@ export function Logo() {
     ])
     setNow(t)
     start()
-    Sound.pulse(lerp(0.8, 1, level))
+    // Sound.pulse(lerp(0.8, 1, level))
   }
 
   const frame = createMemo(() => {
@@ -599,8 +599,8 @@ export function Logo() {
     stop()
     clearInterval(loop)
     clearTimeout(pending)
-    hum = false
-    Sound.dispose()
+    // hum = false
+    // Sound.dispose()
   })
 
   const mouse = (evt: MouseEvent) => {

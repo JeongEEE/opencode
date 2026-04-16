@@ -23,13 +23,24 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          LATEST=$(gh release list --repo JeongEEE/opencode --limit 1 --json tagName --jq '.[0].tagName // empty' 2>/dev/null || echo "")
-          if [ -z "$LATEST" ]; then
-            echo "version=1.0.0" >> $GITHUB_OUTPUT
+          UPSTREAM=$(gh release list --repo anomalyco/opencode --limit 1 --json tagName --jq '.[0].tagName // empty' 2>/dev/null || echo "")
+          CUSTOM=$(gh release list --repo JeongEEE/opencode --limit 1 --json tagName --jq '.[0].tagName // empty' 2>/dev/null || echo "")
+
+          UPSTREAM=${UPSTREAM#v}
+          CUSTOM=${CUSTOM#v}
+
+          IFS='.' read -r u_major u_minor u_patch <<< "${UPSTREAM:-1.4.3}"
+          IFS='.' read -r c_major c_minor c_patch <<< "${CUSTOM:-0.0.0}"
+
+          if [ -z "$CUSTOM" ]; then
+            # 첫 릴리즈 — upstream 버전에서 시작
+            echo "version=${u_major}.${u_minor}.${u_patch}" >> $GITHUB_OUTPUT
+          elif [ "$u_major" -gt "$c_major" ] || { [ "$u_major" -eq "$c_major" ] && [ "$u_minor" -gt "$c_minor" ]; }; then
+            # upstream의 major 또는 minor가 높아짐 — 맞춰서 올림
+            echo "version=${u_major}.${u_minor}.0" >> $GITHUB_OUTPUT
           else
-            LATEST=${LATEST#v}
-            IFS='.' read -r major minor patch <<< "$LATEST"
-            echo "version=${major}.${minor}.$((patch + 1))" >> $GITHUB_OUTPUT
+            # 동일한 major.minor — patch만 증가
+            echo "version=${c_major}.${c_minor}.$((c_patch + 1))" >> $GITHUB_OUTPUT
           fi
 
       - name: Build

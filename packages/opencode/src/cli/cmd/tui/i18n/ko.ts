@@ -25,7 +25,7 @@ export const ko: Translations = {
 
   // session
   session_list: "세션",
-  session_switch: "세션 전환",
+  session_switch: "세션 변경",
   session_new: "새 세션",
   session_deleted: "현재 세션이 삭제되었습니다",
   session_fork_failed: "세션 포크에 실패했습니다",
@@ -85,21 +85,21 @@ export const ko: Translations = {
   update_complete_msg: (v) => `OpenCode v${v}로 업데이트되었습니다. 앱을 재시작해 주세요.`,
 
   // app commands — titles
-  cmd_model_list: "모델 전환",
+  cmd_model_list: "모델 변경",
   cmd_model_cycle: "모델 순환",
   cmd_model_cycle_rev: "모델 역순환",
   cmd_favorite_cycle: "즐겨찾기 순환",
   cmd_favorite_cycle_rev: "즐겨찾기 역순환",
-  cmd_mcp_list: "MCP 전환",
-  cmd_agent_list: "에이전트 전환",
+  cmd_mcp_list: "MCP 변경",
+  cmd_agent_list: "에이전트 변경",
   cmd_agent_cycle: "에이전트 순환",
   cmd_agent_cycle_rev: "에이전트 역순환",
   cmd_variant_cycle: "변형 순환",
-  cmd_variant_list: "모델 변형 전환",
+  cmd_variant_list: "모델 변형 변경",
   cmd_provider_connect: "공급자 연결",
-  cmd_org_switch: "조직 전환",
+  cmd_org_switch: "조직 변경",
   cmd_status: "상태 보기",
-  cmd_theme_switch: "테마 전환",
+  cmd_theme_switch: "테마 변경",
   cmd_theme_mode: "테마 모드 전환",
   cmd_theme_lock: (locked) => (locked ? "테마 모드 잠금 해제" : "테마 모드 잠금"),
   cmd_help: "도움말",
@@ -115,7 +115,7 @@ export const ko: Translations = {
 
   // command palette
   cmd_palette_title: "커맨드",
-  cmd_language: "언어 전환",
+  cmd_language: "언어 변경",
   cmd_clear_prompt: "프롬프트 지우기",
   cmd_submit_prompt: "프롬프트 제출",
   cmd_paste: "붙여넣기",
@@ -427,7 +427,7 @@ export const ko: Translations = {
   toast_export_success: (filename) => `세션이 ${filename}으로 내보내졌습니다`,
 
   // tips
-  tip_theme: (n) => `{highlight}/themes{/highlight} 또는 {highlight}Ctrl+X T{/highlight}로 ${n}개의 기본 테마를 전환할 수 있습니다`,
+  tip_theme: (n) => `{highlight}/themes{/highlight} 또는 {highlight}Ctrl+X T{/highlight}로 ${n}개의 기본 테마를 변경할 수 있습니다`,
   tip_suspend_term: "{highlight}Ctrl+Z{/highlight}를 눌러 터미널을 일시 중단하고 쉘로 돌아갈 수 있습니다",
   tip_undo_prompt: "{highlight}Ctrl+Z{/highlight}를 눌러 프롬프트 입력을 되돌릴 수 있습니다",
   tips_list: [
@@ -441,7 +441,7 @@ export const ko: Translations = {
     "{highlight}Ctrl+V{/highlight}를 눌러 클립보드의 이미지를 프롬프트에 붙여넣을 수 있습니다",
     "{highlight}Ctrl+X E{/highlight} 또는 {highlight}/editor{/highlight}로 외부 에디터에서 메시지를 작성할 수 있습니다",
     "{highlight}/init{/highlight}을 실행하면 코드베이스 기반으로 프로젝트 규칙을 자동 생성합니다",
-    "{highlight}/models{/highlight} 또는 {highlight}Ctrl+X M{/highlight}으로 사용 가능한 AI 모델을 확인하고 전환할 수 있습니다",
+    "{highlight}/models{/highlight} 또는 {highlight}Ctrl+X M{/highlight}으로 사용 가능한 AI 모델을 확인하고 변경할 수 있습니다",
     "{highlight}Ctrl+X N{/highlight} 또는 {highlight}/new{/highlight}로 새 대화 세션을 시작할 수 있습니다",
     "{highlight}/sessions{/highlight} 또는 {highlight}Ctrl+X L{/highlight}로 이전 대화 목록을 보고 이어갈 수 있습니다",
     "{highlight}/compact{/highlight}를 실행하면 컨텍스트 한도에 가까운 긴 세션을 요약합니다",
@@ -450,7 +450,7 @@ export const ko: Translations = {
     "{highlight}Ctrl+P{/highlight}를 눌러 모든 사용 가능한 작업과 커맨드를 확인할 수 있습니다",
     "{highlight}/connect{/highlight}를 실행하여 75개 이상의 LLM 공급자 API 키를 추가할 수 있습니다",
     "리더 키는 {highlight}Ctrl+X{/highlight}입니다. 다른 키와 조합하여 빠른 작업을 수행할 수 있습니다",
-    "{highlight}F2{/highlight}를 눌러 최근 사용한 모델로 빠르게 전환할 수 있습니다",
+    "{highlight}F2{/highlight}를 눌러 최근 사용한 모델로 빠르게 변경할 수 있습니다",
     "{highlight}Ctrl+X B{/highlight}를 눌러 사이드바 패널을 표시하거나 숨길 수 있습니다",
     "{highlight}PageUp{/highlight}/{highlight}PageDown{/highlight}으로 대화 내역을 탐색할 수 있습니다",
     "{highlight}Ctrl+G{/highlight} 또는 {highlight}Home{/highlight}을 눌러 대화의 처음으로 이동할 수 있습니다",
