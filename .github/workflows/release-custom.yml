@@ -64,7 +64,7 @@ jobs:
 
       - name: Build
         working-directory: packages/opencode
-        run: bun run script/build.ts
+        run: bun run script/build.ts --skip-embed-web-ui
         env:
           OPENCODE_VERSION: ${{ steps.version.outputs.version }}
 
