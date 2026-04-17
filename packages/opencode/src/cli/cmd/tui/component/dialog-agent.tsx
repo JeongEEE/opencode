@@ -22,7 +22,7 @@ export function DialogAgent() {
   return (
     <DialogSelect
       title={t().agent_select}
-      current={local.agent.current().name}
+      current={local.agent.current()?.name}
       options={options()}
       onSelect={(option) => {
         local.agent.set(option.value)
