@@ -44,6 +44,8 @@ import type { GrepTool } from "@/tool/grep"
 import type { EditTool } from "@/tool/edit"
 import type { ApplyPatchTool } from "@/tool/apply_patch"
 import type { WebFetchTool } from "@/tool/webfetch"
+import type { CodeSearchTool } from "@/tool/codesearch"
+import type { WebSearchTool } from "@/tool/websearch"
 import type { TaskTool } from "@/tool/task"
 import type { QuestionTool } from "@/tool/question"
 import type { SkillTool } from "@/tool/skill"
@@ -52,7 +54,6 @@ import { useSDK } from "@tui/context/sdk"
 import { useCommandDialog } from "@tui/component/dialog-command"
 import type { DialogContext } from "@tui/ui/dialog"
 import { useKeybind } from "@tui/context/keybind"
-import { parsePatch } from "diff"
 import { useDialog } from "../../ui/dialog"
 import { TodoItem } from "../../component/todo-item"
 import { DialogMessage } from "./dialog-message"
@@ -88,6 +89,7 @@ import { getScrollAcceleration } from "../../util/scroll"
 import { TuiPluginRuntime } from "../../plugin"
 import { DialogGoUpsell } from "../../component/dialog-go-upsell"
 import { SessionRetry } from "@/session/retry"
+import { getRevertDiffFiles } from "../../util/revert-diff"
 
 addDefaultParsers(parsers.parsers)
 
@@ -184,27 +186,32 @@ export function Session() {
   const { t } = useI18n()
 
   createEffect(async () => {
-    await sdk.client.session
-      .get({ sessionID: route.sessionID }, { throwOnError: true })
-      .then((x) => {
-        project.workspace.set(x.data?.workspaceID)
+    const previousWorkspace = project.workspace.current()
+    const result = await sdk.client.session.get({ sessionID: route.sessionID }, { throwOnError: true })
+    if (!result.data) {
+      toast.show({
+        message: t().session_not_found(route.sessionID),
+        variant: "error",
       })
-      .then(() => sync.session.sync(route.sessionID))
-      .then(() => {
-        if (scroll) scroll.scrollBy(100_000)
-      })
-      .catch((e) => {
-        console.error(e)
-        toast.show({
-          message: t().session_not_found(route.sessionID),
-          variant: "error",
-        })
-        return navigate({ type: "home" })
-      })
+      navigate({ type: "home" })
+      return
+    }
+
+    if (result.data.workspaceID !== previousWorkspace) {
+      project.workspace.set(result.data.workspaceID)
+
+      // Sync all the data for this workspace. Note that this
+      // workspace may not exist anymore which is why this is not
+      // fatal. If it doesn't we still want to show the session
+      // (which will be non-interactive)
+      try {
+        await sync.bootstrap({ fatal: false })
+      } catch (e) {}
+    }
+    await sync.session.sync(route.sessionID)
+    if (scroll) scroll.scrollBy(100_000)
   })
 
-  // Handle initial prompt from fork
-  let seeded = false
   let lastSwitch: string | undefined = undefined
   event.on("message.part.updated", (evt) => {
     const part = evt.properties.part
@@ -222,14 +229,15 @@ export function Session() {
     }
   })
 
+  let seeded = false
   let scroll: ScrollBoxRenderable
   let prompt: PromptRef | undefined
   const bind = (r: PromptRef | undefined) => {
     prompt = r
     promptRef.set(r)
-    if (seeded || !route.initialPrompt || !r) return
+    if (seeded || !route.prompt || !r) return
     seeded = true
-    r.set(route.initialPrompt)
+    r.set(route.prompt)
   }
   const keybind = useKeybind()
   const dialog = useDialog()
@@ -611,7 +619,7 @@ export function Session() {
     {
       title: t().cmd_session_conceal(conceal()),
       value: "session.toggle.conceal",
-      keybind: "messages_toggle_conceal" as any,
+      keybind: "messages_toggle_conceal",
       category: t().cat_session,
       onSelect: (dialog) => {
         setConceal((prev) => !prev)
@@ -1003,31 +1011,7 @@ export function Session() {
   const revertInfo = createMemo(() => session()?.revert)
   const revertMessageID = createMemo(() => revertInfo()?.messageID)
 
-  const revertDiffFiles = createMemo(() => {
-    const diffText = revertInfo()?.diff ?? ""
-    if (!diffText) return []
-
-    try {
-      const patches = parsePatch(diffText)
-      return patches.map((patch) => {
-        const filename = patch.newFileName || patch.oldFileName || "unknown"
-        const cleanFilename = filename.replace(/^[ab]\//, "")
-        return {
-          filename: cleanFilename,
-          additions: patch.hunks.reduce(
-            (sum, hunk) => sum + hunk.lines.filter((line) => line.startsWith("+")).length,
-            0,
-          ),
-          deletions: patch.hunks.reduce(
-            (sum, hunk) => sum + hunk.lines.filter((line) => line.startsWith("-")).length,
-            0,
-          ),
-        }
-      })
-    } catch {
-      return []
-    }
-  })
+  const revertDiffFiles = createMemo(() => getRevertDiffFiles(revertInfo()?.diff ?? ""))
 
   const revertRevertedMessages = createMemo(() => {
     const messageID = revertMessageID()
@@ -1959,30 +1943,28 @@ function Grep(props: ToolProps<typeof GrepTool>) {
 function WebFetch(props: ToolProps<typeof WebFetchTool>) {
   const { t } = useI18n()
   return (
-    <InlineTool icon="%" pending={t().tool_fetching_web} complete={(props.input as any).url} part={props.part}>
-      WebFetch {(props.input as any).url}
+    <InlineTool icon="%" pending={t().tool_fetching_web} complete={props.input.url} part={props.part}>
+      WebFetch {props.input.url}
     </InlineTool>
   )
 }
 
-function CodeSearch(props: ToolProps<any>) {
+function CodeSearch(props: ToolProps<typeof CodeSearchTool>) {
   const { t } = useI18n()
-  const input = props.input as any
-  const metadata = props.metadata as any
+  const metadata = props.metadata as { results?: number }
   return (
-    <InlineTool icon="◇" pending={t().tool_searching_code} complete={input.query} part={props.part}>
-      Exa Code Search "{input.query}" <Show when={metadata.results}>({metadata.results} results)</Show>
+    <InlineTool icon="◇" pending={t().tool_searching_code} complete={props.input.query} part={props.part}>
+      Exa Code Search "{props.input.query}" <Show when={metadata.results}>({metadata.results} results)</Show>
     </InlineTool>
   )
 }
 
-function WebSearch(props: ToolProps<any>) {
+function WebSearch(props: ToolProps<typeof WebSearchTool>) {
   const { t } = useI18n()
-  const input = props.input as any
-  const metadata = props.metadata as any
+  const metadata = props.metadata as { numResults?: number }
   return (
-    <InlineTool icon="◈" pending={t().tool_searching_web} complete={input.query} part={props.part}>
-      Exa Web Search "{input.query}" <Show when={metadata.numResults}>({metadata.numResults} results)</Show>
+    <InlineTool icon="◈" pending={t().tool_searching_web} complete={props.input.query} part={props.part}>
+      Exa Web Search "{props.input.query}" <Show when={metadata.numResults}>({metadata.numResults} results)</Show>
     </InlineTool>
   )
 }
@@ -2007,7 +1989,9 @@ function Task(props: ToolProps<typeof TaskTool>) {
     )
   })
 
-  const current = createMemo(() => tools().findLast((x) => (x.state as any).title))
+  const current = createMemo(() =>
+    tools().findLast((x) => (x.state.status === "running" || x.state.status === "completed") && x.state.title),
+  )
 
   const isRunning = createMemo(() => props.part.state.status === "running")
 
@@ -2024,8 +2008,11 @@ function Task(props: ToolProps<typeof TaskTool>) {
 
     if (isRunning() && tools().length > 0) {
       // content[0] += ` · ${tools().length} toolcalls`
-      if (current()) content.push(`↳ ${Locale.titlecase(current()!.tool)} ${(current()!.state as any).title}`)
-      else content.push(`↳ ${t().task_toolcalls(tools().length)}`)
+      if (current()) {
+        const state = current()!.state
+        const title = state.status === "running" || state.status === "completed" ? state.title : undefined
+        content.push(`↳ ${Locale.titlecase(current()!.tool)} ${title}`)
+      } else content.push(`↳ ${t().task_toolcalls(tools().length)}`)
     }
 
     if (props.part.state.status === "completed") {

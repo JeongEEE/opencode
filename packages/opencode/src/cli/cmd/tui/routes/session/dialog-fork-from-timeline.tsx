@@ -40,7 +40,7 @@ export function DialogForkFromTimeline(props: { sessionID: string; onMove: (mess
             messageID: message.id,
           })
           const parts = sync.data.part[message.id] ?? []
-          const initialPrompt = parts.reduce(
+          const prompt = parts.reduce(
             (agg, part) => {
               if (part.type === "text") {
                 if (!part.synthetic) agg.input += part.text
@@ -53,7 +53,7 @@ export function DialogForkFromTimeline(props: { sessionID: string; onMove: (mess
           route.navigate({
             sessionID: forked.data!.id,
             type: "session",
-            initialPrompt,
+            prompt,
           })
           dialog.clear()
         },
