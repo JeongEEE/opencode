@@ -28,8 +28,8 @@ export function Home() {
     setRef(r)
     promptRef.set(r)
     if (once || !r) return
-    if (route.initialPrompt) {
-      r.set(route.initialPrompt)
+    if (route.prompt) {
+      r.set(route.prompt)
       once = true
       return
     }
