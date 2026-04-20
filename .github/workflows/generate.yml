@@ -1,9 +1,7 @@
 name: generate
 
 on:
-  push:
-    branches:
-      - dev
+  workflow_dispatch: # disabled: not needed for my-custom fork
 
 jobs:
   generate:
