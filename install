@@ -426,7 +426,7 @@ if [[ "$no_modify_path" != "true" ]]; then
         print_message info "${MUTED}Created ${NC}$config_file"
     fi
 
-    if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
+    if ! grep -q "$INSTALL_DIR" "$config_file" 2>/dev/null; then
         case $current_shell in
             fish)
                 add_to_path "$config_file" "fish_add_path $INSTALL_DIR"

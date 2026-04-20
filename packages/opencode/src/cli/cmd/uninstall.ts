@@ -211,11 +211,26 @@ async function executeUninstall(method: Installation.Method, targets: RemovalTar
   }
 
   if (method === "curl" && targets.binary) {
+    const binDir = path.dirname(targets.binary)
+    const pcodeLink = path.join(binDir, "pcode")
+    const pcodeLinkExists = await fs
+      .access(pcodeLink)
+      .then(() => true)
+      .catch(() => false)
+    if (pcodeLinkExists) {
+      spinner.start("Removing pcode symlink...")
+      const err = await fs.unlink(pcodeLink).catch((e) => e)
+      if (err) {
+        spinner.stop("Failed to remove pcode symlink", 1)
+        errors.push(`pcode symlink: ${err.message}`)
+      } else {
+        spinner.stop("Removed pcode symlink")
+      }
+    }
+
     UI.empty()
     prompts.log.message("To finish removing the binary, run:")
     prompts.log.info(`  rm "${targets.binary}"`)
-
-    const binDir = path.dirname(targets.binary)
     if (binDir.includes(".opencode")) {
       prompts.log.info(`  rmdir "${binDir}" 2>/dev/null`)
     }
