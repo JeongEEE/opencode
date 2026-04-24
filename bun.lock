@@ -318,6 +318,7 @@
       "version": "1.14.22",
       "bin": {
         "opencode": "./bin/opencode",
+        "pcode": "./bin/purplecode",
       },
       "dependencies": {
         "@actions/core": "1.11.1",
