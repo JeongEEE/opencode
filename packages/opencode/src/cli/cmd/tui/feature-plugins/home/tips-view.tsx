@@ -1,4 +1,4 @@
-import { For, createMemo } from "solid-js"
+import { createMemo, For } from "solid-js"
 import { DEFAULT_THEMES, useTheme } from "@tui/context/theme"
 import { useI18n } from "@tui/context/i18n"
 
@@ -30,7 +30,9 @@ function parse(tip: string): TipPart[] {
   return parts
 }
 
-export function Tips() {
+const NO_MODELS_TIP = "Run {highlight}/connect{/highlight} to add an AI provider and start coding"
+
+export function Tips(props: { connected?: boolean }) {
   const theme = useTheme().theme
   const { t } = useI18n()
   const all = createMemo(() => [
@@ -38,7 +40,8 @@ export function Tips() {
     t().tip_theme(themeCount),
     process.platform === "win32" ? t().tip_undo_prompt : t().tip_suspend_term,
   ])
-  const parts = createMemo(() => parse(all()[Math.floor(Math.random() * all().length)]))
+  const randomTip = createMemo(() => all()[Math.floor(Math.random() * all().length)])
+  const parts = createMemo(() => parse(props.connected === false ? NO_MODELS_TIP : randomTip()))
 
   return (
     <box flexDirection="row" width="100%">
