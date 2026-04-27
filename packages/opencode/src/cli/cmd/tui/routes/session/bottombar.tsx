@@ -1,7 +1,7 @@
 import { createMemo, Show } from "solid-js"
 import { useSync } from "@tui/context/sync"
 import { useTheme } from "@tui/context/theme"
-import { Global } from "@/global"
+import { Global } from "@opencode-ai/core/global"
 import { UsageBar } from "@tui/component/usage-bar"
 import type { AssistantMessage } from "@opencode-ai/sdk/v2"
 
