@@ -15,6 +15,7 @@ import * as Clipboard from "@tui/util/clipboard"
 import { useToast } from "../ui/toast"
 import { isConsoleManagedProvider } from "@tui/util/provider-origin"
 import { useI18n } from "@tui/context/i18n"
+import { useConnected } from "./use-connected"
 
 const PROVIDER_PRIORITY: Record<string, number> = {
   opencode: 0,
@@ -32,6 +33,7 @@ export function createDialogProviderOptions() {
   const toast = useToast()
   const { theme } = useTheme()
   const { t } = useI18n()
+  const onboarded = useConnected()
   const options = createMemo(() => {
     return pipe(
       sync.data.provider_next.all,
@@ -51,7 +53,7 @@ export function createDialogProviderOptions() {
           }[provider.id],
           footer: consoleManaged ? sync.data.console_state.activeOrgName : undefined,
           category: provider.id in PROVIDER_PRIORITY ? t().provider_popular : t().provider_other,
-          gutter: connected ? <text fg={theme.success}>✓</text> : undefined,
+          gutter: connected && onboarded() ? <text fg={theme.success}>✓</text> : undefined,
           async onSelect() {
             if (consoleManaged) return
 
