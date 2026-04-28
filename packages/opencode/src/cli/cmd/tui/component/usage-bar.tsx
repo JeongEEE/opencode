@@ -3,7 +3,7 @@ import { createMemo, Show } from "solid-js"
 import { RGBA } from "@opentui/core"
 import { useSync } from "@tui/context/sync"
 import { useTheme } from "@tui/context/theme"
-import { Locale } from "@/util"
+import { Locale } from "@/util/locale"
 
 const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" })
 const PURPLE = RGBA.fromInts(179, 151, 215, 255)
