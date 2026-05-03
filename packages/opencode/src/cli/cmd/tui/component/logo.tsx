@@ -1,4 +1,5 @@
 import { BoxRenderable, MouseButton, MouseEvent, RGBA, TextAttributes } from "@opentui/core"
+import { useRenderer } from "@opentui/solid"
 import { For, createMemo, createSignal, onCleanup, onMount, type JSX } from "solid-js"
 import { useTheme, tint } from "@tui/context/theme"
 // import * as Sound from "@tui/util/sound"
@@ -557,6 +558,7 @@ function buildIdleState(t: number, ctx: LogoContext): IdleState {
 export function Logo(props: { shape?: LogoShape; ink?: RGBA; idle?: boolean } = {}) {
   const ctx = props.shape ? build(props.shape) : DEFAULT
   const { theme } = useTheme()
+  const renderer = useRenderer()
   const [rings, setRings] = createSignal<Ring[]>([])
   const [hold, setHold] = createSignal<Hold>()
   const [release, setRelease] = createSignal<Release>()
@@ -698,6 +700,7 @@ export function Logo(props: { shape?: LogoShape; ink?: RGBA; idle?: boolean } = 
   })
 
   const idleState = createMemo(() => (props.idle ? buildIdleState(frame().t, ctx) : undefined))
+  const useSubpixelBlocks = () => renderer.capabilities?.rgb === true
 
   const renderLine = (
     line: string,
@@ -803,7 +806,7 @@ export function Logo(props: { shape?: LogoShape; ink?: RGBA; idle?: boolean } = 
       }
 
       // Solid █: render as ▀ so the top pixel (fg) and bottom pixel (bg) can carry independent shimmer values
-      if (char === "█") {
+      if (char === "█" && useSubpixelBlocks()) {
         return (
           <text
             fg={shade(inkTop, theme, n + p + e + b)}

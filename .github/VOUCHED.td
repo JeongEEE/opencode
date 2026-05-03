@@ -16,6 +16,7 @@ ariane-emory
 -danieljoshuanazareth
 -danieljoshuanazareth
 -davidbernat looks to be a clawdbot that spams team and sends super weird emails, doesnt appear to be a real person
+dmtrkovalenko
 edemaine
 fahreddinozcan
 -florianleibert
@@ -31,6 +32,7 @@ rekram1-node
 -ricardo-m-l
 -robinmordasiewicz
 rubdos
+-saisharan0103 spamming ai prs
 shantur
 simonklee
 -spider-yamet clawdbot/llm psychosis, spam pinging the team
