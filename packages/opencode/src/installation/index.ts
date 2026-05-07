@@ -70,7 +70,6 @@ export class UpgradeFailedError extends Schema.TaggedErrorClass<UpgradeFailedErr
 }) {}
 
 // Response schemas for external version APIs
-const GitHubRelease = Schema.Struct({ tag_name: Schema.String })
 const NpmPackage = Schema.Struct({ version: Schema.String })
 const BrewFormula = Schema.Struct({ versions: Schema.Struct({ stable: Schema.String }) })
 const BrewInfoV2 = Schema.Struct({
@@ -253,13 +252,13 @@ export const layer: Layer.Layer<Service, never, HttpClient.HttpClient | ChildPro
             return data.version
           }
 
-          const response = yield* httpOk.execute(
-            HttpClientRequest.get("https://api.github.com/repos/JeongEEE/opencode/releases/latest").pipe(
-              HttpClientRequest.acceptJson,
+          const redirectUrl = yield* Effect.tryPromise(() =>
+            fetch("https://github.com/JeongEEE/opencode/releases/latest", { redirect: "manual" }).then(
+              (r) => r.headers.get("location") ?? "",
             ),
           )
-          const data = yield* HttpClientResponse.schemaBodyJson(GitHubRelease)(response)
-          return data.tag_name.replace(/^v/, "")
+          const tag = redirectUrl.split("/tag/")[1]
+          return (tag ?? "").replace(/^v/, "")
         }, Effect.orDie),
         upgrade: Effect.fn("Installation.upgrade")(function* (m: Method, target: string) {
           let upgradeResult: { code: ChildProcessSpawner.ExitCode; stdout: string; stderr: string } | undefined
