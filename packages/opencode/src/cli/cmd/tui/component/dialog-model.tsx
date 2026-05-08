@@ -6,17 +6,17 @@ import { DialogSelect } from "@tui/ui/dialog-select"
 import { useDialog } from "@tui/ui/dialog"
 import { createDialogProviderOptions, DialogProvider } from "./dialog-provider"
 import { DialogVariant } from "./dialog-variant"
-import { useKeybind } from "../context/keybind"
 import { useI18n } from "@tui/context/i18n"
 import * as fuzzysort from "fuzzysort"
 import { useConnected } from "./use-connected"
+import { useTuiConfig } from "../context/tui-config"
 
 export function DialogModel(props: { providerID?: string }) {
   const local = useLocal()
   const sync = useSync()
   const dialog = useDialog()
-  const keybind = useKeybind()
   const { t } = useI18n()
+  const tuiConfig = useTuiConfig()
   const [query, setQuery] = createSignal("")
 
   const connected = useConnected()
@@ -152,16 +152,16 @@ export function DialogModel(props: { providerID?: string }) {
   return (
     <DialogSelect<ReturnType<typeof options>[number]["value"]>
       options={options()}
-      keybind={[
+      actions={[
         {
-          keybind: keybind.all.model_provider_list?.[0],
+          command: "model.dialog.provider",
           title: connected() ? t().cmd_provider_connect : t().model_view_all,
           onTrigger() {
             dialog.replace(() => <DialogProvider />)
           },
         },
         {
-          keybind: keybind.all.model_favorite_toggle?.[0],
+          command: "model.dialog.favorite",
           title: t().model_favorite,
           disabled: !connected(),
           onTrigger: (option) => {
@@ -169,6 +169,7 @@ export function DialogModel(props: { providerID?: string }) {
           },
         },
       ]}
+      bindings={tuiConfig.keymap.sections.model}
       onFilter={setQuery}
       flat={true}
       skipFilter={true}

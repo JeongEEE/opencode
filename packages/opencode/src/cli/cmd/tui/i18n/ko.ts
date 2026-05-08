@@ -115,6 +115,7 @@ export const ko: Translations = {
 
   // command palette
   cmd_palette_title: "커맨드",
+  cmd_palette_show: "커맨드 팔레트 열기",
   cmd_language: "언어 변경",
   cmd_clear_prompt: "프롬프트 지우기",
   cmd_submit_prompt: "프롬프트 제출",
@@ -125,6 +126,12 @@ export const ko: Translations = {
   cmd_stash_prompt: "프롬프트 임시저장",
   cmd_stash_pop: "임시저장 복원",
   cmd_stash_list: "임시저장 목록",
+  cmd_prompt_remove_editor_ctx: "에디터 컨텍스트 제거",
+  cmd_workspace_warp: "워크스페이스 변경",
+  cmd_workspace_warp_desc: "세션의 워크스페이스를 변경합니다",
+  cmd_file_context_toggle: (on) => (on ? "파일 컨텍스트 비활성화" : "파일 컨텍스트 활성화"),
+  cmd_paste_summary_toggle: (on) => (on ? "붙여넣기 요약 비활성화" : "붙여넣기 요약 활성화"),
+  cmd_session_filter_toggle: (on) => (on ? "세션 디렉터리 필터 비활성화" : "세션 디렉터리 필터 활성화"),
 
   // command categories
   cat_suggested: "추천",
@@ -132,6 +139,7 @@ export const ko: Translations = {
   cat_agent: "에이전트",
   cat_provider: "공급자",
   cat_system: "시스템",
+  cat_prompt: "프롬프트",
 
   // languages
   lang_en: "English",
@@ -372,6 +380,7 @@ export const ko: Translations = {
   plugin_load_failed: "플러그인이 설치되었지만 런타임 로드에 실패했습니다. 콘솔/로그를 확인하고 TUI를 재시작하세요.",
   plugin_loaded: (mod) => `현재 세션에서 ${mod}을(를) 로드했습니다.`,
   plugin_update_failed: (id) => `플러그인 ${id} 업데이트에 실패했습니다`,
+  plugin_refreshed: (name, version) => `${name} v${version}으로 업데이트되었습니다`,
   plugin_list_title: "플러그인",
   plugin_category_internal: "내부",
   plugin_category_external: "외부",

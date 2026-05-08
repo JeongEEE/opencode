@@ -5,7 +5,6 @@ import { useSync } from "@tui/context/sync"
 import { createMemo, createResource, createSignal, onMount, type JSX } from "solid-js"
 import { Locale } from "@/util/locale"
 import { useProject } from "@tui/context/project"
-import { useKeybind } from "../context/keybind"
 import { useTheme } from "../context/theme"
 import { useI18n } from "../context/i18n"
 import { useSDK } from "../context/sdk"
@@ -18,6 +17,7 @@ import { Spinner } from "./spinner"
 import { errorMessage } from "@/util/error"
 import { DialogSessionDeleteFailed } from "./dialog-session-delete-failed"
 import { WorkspaceLabel } from "./workspace-label"
+import { useCommandShortcut } from "../keymap"
 
 export function DialogSessionList() {
   const { t } = useI18n()
@@ -25,12 +25,12 @@ export function DialogSessionList() {
   const route = useRoute()
   const sync = useSync()
   const project = useProject()
-  const keybind = useKeybind()
   const { theme } = useTheme()
   const sdk = useSDK()
   const toast = useToast()
   const [toDelete, setToDelete] = createSignal<string>()
   const [search, setSearch] = createDebouncedSignal("", 150)
+  const deleteHint = useCommandShortcut("dialog.action.delete")
 
   const [searchResults, { refetch }] = createResource(
     () => ({ query: search(), filter: sync.session.query() }),
@@ -72,8 +72,10 @@ export function DialogSessionList() {
         sync,
         project,
         toast,
+        sourceWorkspaceID: session.workspaceID,
         workspaceID,
         sessionID: session.id,
+        copyChanges: false,
         done: list,
       })
     }
@@ -156,7 +158,7 @@ export function DialogSessionList() {
         const status = sync.data.session_status?.[x.id]
         const isWorking = status?.type === "busy"
         return {
-          title: isDeleting ? `Press ${keybind.print("session_delete")} again to confirm` : x.title,
+          title: isDeleting ? t().stash_confirm_delete(deleteHint()) : x.title,
           bg: isDeleting ? theme.error : undefined,
           value: x.id,
           category,
@@ -187,9 +189,9 @@ export function DialogSessionList() {
         })
         dialog.clear()
       }}
-      keybind={[
+      actions={[
         {
-          keybind: keybind.all.session_delete?.[0],
+          command: "dialog.action.delete",
           title: t().session_list_delete,
           onTrigger: async (option) => {
             if (toDelete() === option.value) {
@@ -237,7 +239,7 @@ export function DialogSessionList() {
           },
         },
         {
-          keybind: keybind.all.session_rename?.[0],
+          command: "dialog.action.rename",
           title: t().session_list_rename,
           onTrigger: async (option) => {
             dialog.replace(() => <DialogSessionRename session={option.value} />)

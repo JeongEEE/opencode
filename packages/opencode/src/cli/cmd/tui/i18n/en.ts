@@ -113,6 +113,7 @@ export const en = {
 
   // command palette
   cmd_palette_title: "Commands",
+  cmd_palette_show: "Show command palette",
   cmd_language: "Switch language",
   cmd_clear_prompt: "Clear prompt",
   cmd_submit_prompt: "Submit prompt",
@@ -123,6 +124,13 @@ export const en = {
   cmd_stash_prompt: "Stash prompt",
   cmd_stash_pop: "Stash pop",
   cmd_stash_list: "Stash list",
+  cmd_prompt_remove_editor_ctx: "Remove editor context",
+  cmd_workspace_warp: "Warp",
+  cmd_workspace_warp_desc: "Change the workspace for the session",
+  cmd_file_context_toggle: (on: boolean): string => (on ? "Disable file context" : "Enable file context"),
+  cmd_paste_summary_toggle: (on: boolean): string => (on ? "Disable paste summary" : "Enable paste summary"),
+  cmd_session_filter_toggle: (on: boolean): string =>
+    on ? "Disable session directory filtering" : "Enable session directory filtering",
 
   // command categories
   cat_suggested: "Suggested",
@@ -130,6 +138,7 @@ export const en = {
   cat_agent: "Agent",
   cat_provider: "Provider",
   cat_system: "System",
+  cat_prompt: "Prompt",
 
   // languages
   lang_en: "English",
@@ -370,6 +379,7 @@ export const en = {
   plugin_load_failed: "Installed plugin, but runtime load failed. See console/logs; restart TUI to retry.",
   plugin_loaded: (mod: string): string => `Loaded ${mod} in current session.`,
   plugin_update_failed: (id: string): string => `Failed to update plugin ${id}`,
+  plugin_refreshed: (name: string, version: string): string => `${name} updated to v${version}`,
   plugin_list_title: "Plugins",
   plugin_category_internal: "Internal",
   plugin_category_external: "External",

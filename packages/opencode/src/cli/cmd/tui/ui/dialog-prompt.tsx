@@ -2,7 +2,6 @@ import { TextareaRenderable, TextAttributes } from "@opentui/core"
 import { useTheme } from "../context/theme"
 import { useDialog, type DialogContext } from "./dialog"
 import { Show, createEffect, onMount, type JSX } from "solid-js"
-import { useKeyboard } from "@opentui/solid"
 import { Spinner } from "../component/spinner"
 import { useI18n } from "../context/i18n"
 
@@ -22,20 +21,6 @@ export function DialogPrompt(props: DialogPromptProps) {
   const { theme } = useTheme()
   const { t } = useI18n()
   let textarea: TextareaRenderable
-
-  useKeyboard((evt) => {
-    if (props.busy) {
-      if (evt.name === "escape") return
-      evt.preventDefault()
-      evt.stopPropagation()
-      return
-    }
-    if (evt.name === "return") {
-      evt.preventDefault()
-      evt.stopPropagation()
-      props.onConfirm?.(textarea.plainText)
-    }
-  })
 
   onMount(() => {
     dialog.setSize("medium")
@@ -81,7 +66,6 @@ export function DialogPrompt(props: DialogPromptProps) {
             props.onConfirm?.(textarea.plainText)
           }}
           height={3}
-          keyBindings={props.busy ? [] : [{ name: "return", action: "submit" }]}
           ref={(val: TextareaRenderable) => {
             textarea = val
           }}

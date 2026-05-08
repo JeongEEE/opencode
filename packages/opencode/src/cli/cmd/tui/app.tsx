@@ -1,4 +1,5 @@
-import { render, TimeToFirstDraw, useKeyboard, useRenderer, useTerminalDimensions } from "@opentui/solid"
+import { render, TimeToFirstDraw, useRenderer, useTerminalDimensions } from "@opentui/solid"
+import { createDefaultOpenTuiKeymap } from "@opentui/keymap/opentui"
 import * as Clipboard from "@tui/util/clipboard"
 import * as Selection from "@tui/util/selection"
 import { createCliRenderer, MouseButton, type CliRendererConfig } from "@opentui/core"
@@ -11,6 +12,7 @@ import {
   ErrorBoundary,
   createSignal,
   onMount,
+  onCleanup,
   batch,
   Show,
   on,
@@ -36,11 +38,9 @@ import { DialogMcp } from "@tui/component/dialog-mcp"
 import { DialogStatus } from "@tui/component/dialog-status"
 import { DialogThemeList } from "@tui/component/dialog-theme-list"
 import { DialogHelp } from "./ui/dialog-help"
-import { CommandProvider, useCommandDialog } from "@tui/component/dialog-command"
 import { DialogAgent } from "@tui/component/dialog-agent"
 import { DialogSessionList } from "@tui/component/dialog-session-list"
 import { DialogConsoleOrg } from "@tui/component/dialog-console-org"
-import { KeybindProvider, useKeybind } from "@tui/context/keybind"
 import { ThemeProvider, useTheme } from "@tui/context/theme"
 import { Home } from "@tui/routes/home"
 import { Session } from "@tui/routes/session"
@@ -62,15 +62,17 @@ import { PromptRefProvider, usePromptRef } from "./context/prompt"
 import { TuiConfigProvider, useTuiConfig } from "./context/tui-config"
 import { I18nProvider, useI18n } from "./context/i18n"
 import { TuiConfig } from "@/cli/cmd/tui/config/tui"
-import { createTuiApi } from "@/cli/cmd/tui/plugin/api"
 import { TuiPluginRuntime } from "@/cli/cmd/tui/plugin/runtime"
+import { createTuiApi } from "@/cli/cmd/tui/plugin/api"
 import type { RouteMap } from "@/cli/cmd/tui/plugin/api"
 import { FormatError, FormatUnknownError } from "@/cli/error"
+import { CommandPaletteProvider, useCommandPalette } from "./context/command-palette"
+import { OpencodeKeymapProvider, registerOpencodeKeymap, useBindings, useOpencodeKeymap } from "./keymap"
 
 import type { EventSource } from "./context/sdk"
 import { DialogVariant } from "./component/dialog-variant"
 
-function rendererConfig(_config: TuiConfig.Info): CliRendererConfig {
+function rendererConfig(_config: TuiConfig.Resolved): CliRendererConfig {
   const mouseEnabled = !Flag.OPENCODE_DISABLE_MOUSE && (_config.mouse ?? true)
 
   return {
@@ -113,7 +115,7 @@ function errorMessage(error: unknown) {
 export function tui(input: {
   url: string
   args: Args
-  config: TuiConfig.Info
+  config: TuiConfig.Resolved
   onSnapshot?: () => Promise<string[]>
   directory?: string
   fetch?: typeof fetch
@@ -132,6 +134,7 @@ export function tui(input: {
     }
 
     const onBeforeExit = async () => {
+      offKeymap()
       await TuiPluginRuntime.dispose()
     }
 
@@ -140,6 +143,9 @@ export function tui(input: {
     void renderer.getPalette({ size: 16 }).catch(() => undefined)
     const mode = (await renderer.waitForThemeMode(1000)) ?? "dark"
 
+    const keymap = createDefaultOpenTuiKeymap(renderer)
+    const offKeymap = registerOpencodeKeymap(keymap, renderer, input.config)
+
     await render(() => {
       return (
         <ErrorBoundary
@@ -147,10 +153,11 @@ export function tui(input: {
             <ErrorComponent error={error} reset={reset} onBeforeExit={onBeforeExit} onExit={onExit} mode={mode} />
           )}
         >
-          <ArgsProvider {...input.args}>
-            <ExitProvider onBeforeExit={onBeforeExit} onExit={onExit}>
-              <KVProvider>
-                <I18nProvider language={input.config.language}>
+          <OpencodeKeymapProvider keymap={keymap}>
+            <ArgsProvider {...input.args}>
+              <ExitProvider onBeforeExit={onBeforeExit} onExit={onExit}>
+                <KVProvider>
+                  <I18nProvider language={input.config.language}>
                   <ToastProvider>
                     <RouteProvider
                       initialRoute={
@@ -173,12 +180,11 @@ export function tui(input: {
                           <ProjectProvider>
                             <SyncProvider>
                               <SyncProviderV2>
-                              <ThemeProvider mode={mode}>
-                                <LocalProvider>
-                                  <KeybindProvider>
+                                <ThemeProvider mode={mode}>
+                                  <LocalProvider>
                                     <PromptStashProvider>
                                       <DialogProvider>
-                                        <CommandProvider>
+                                        <CommandPaletteProvider>
                                           <FrecencyProvider>
                                             <PromptHistoryProvider>
                                               <PromptRefProvider>
@@ -188,12 +194,11 @@ export function tui(input: {
                                               </PromptRefProvider>
                                             </PromptHistoryProvider>
                                           </FrecencyProvider>
-                                        </CommandProvider>
+                                        </CommandPaletteProvider>
                                       </DialogProvider>
                                     </PromptStashProvider>
-                                  </KeybindProvider>
-                                </LocalProvider>
-                              </ThemeProvider>
+                                  </LocalProvider>
+                                </ThemeProvider>
                               </SyncProviderV2>
                             </SyncProvider>
                           </ProjectProvider>
@@ -201,10 +206,11 @@ export function tui(input: {
                       </TuiConfigProvider>
                     </RouteProvider>
                   </ToastProvider>
-                </I18nProvider>
-              </KVProvider>
-            </ExitProvider>
-          </ArgsProvider>
+                  </I18nProvider>
+                </KVProvider>
+              </ExitProvider>
+            </ArgsProvider>
+          </OpencodeKeymapProvider>
         </ErrorBoundary>
       )
     }, renderer)
@@ -213,14 +219,17 @@ export function tui(input: {
 
 function App(props: { onSnapshot?: () => Promise<string[]> }) {
   const tuiConfig = useTuiConfig()
+  const {
+    keymap: { sections },
+  } = tuiConfig
   const route = useRoute()
   const dimensions = useTerminalDimensions()
   const renderer = useRenderer()
   const dialog = useDialog()
   const local = useLocal()
   const kv = useKV()
-  const command = useCommandDialog()
-  const keybind = useKeybind()
+  const command = useCommandPalette()
+  const keymap = useOpencodeKeymap()
   const event = useEvent()
   const sdk = useSDK()
   const toast = useToast()
@@ -238,10 +247,9 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
   }
 
   const api = createTuiApi({
-    command,
     tuiConfig,
     dialog,
-    keybind,
+    keymap,
     kv,
     route,
     routes,
@@ -265,40 +273,16 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       setReady(true)
     })
 
-  useKeyboard((evt) => {
-    if (!Flag.OPENCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT) return
-    const sel = renderer.getSelection()
-    if (!sel) return
-
-    // Windows Terminal-like behavior:
-    // - Ctrl+C copies and dismisses selection
-    // - Esc dismisses selection
-    // - Most other key input dismisses selection and is passed through
-    if (evt.ctrl && evt.name === "c") {
-      if (!Selection.copy(renderer, toast)) {
-        renderer.clearSelection()
-        return
-      }
-
-      evt.preventDefault()
-      evt.stopPropagation()
-      return
-    }
-
-    if (evt.name === "escape") {
-      renderer.clearSelection()
-      evt.preventDefault()
-      evt.stopPropagation()
-      return
-    }
-
-    const focus = renderer.currentFocusedRenderable
-    if (focus?.hasSelection() && sel.selectedRenderables.includes(focus)) {
-      return
-    }
-
-    renderer.clearSelection()
-  })
+  // Let selection copy/dismiss win ahead of normal bindings when the feature flag is on.
+  const offSelectionKeys = keymap.intercept(
+    "key",
+    ({ event }) => {
+      if (!Flag.OPENCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT) return
+      Selection.handleSelectionKey(renderer, toast, event)
+    },
+    { priority: 1 },
+  )
+  onCleanup(offSelectionKeys)
 
   // Wire up console copy-to-clipboard via opentui's onCopySelection callback
   renderer.console.onCopySelection = async (text: string) => {
@@ -415,400 +399,384 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
   )
 
   const connected = useConnected()
-  command.register(() => [
-    {
-      title: t().session_switch,
-      value: "session.list",
-      keybind: "session_list",
-      category: t().cat_session,
-      suggested: sync.data.session.length > 0,
-      slash: {
-        name: "sessions",
-        aliases: ["resume", "continue"],
+  const appCommands = createMemo(() =>
+    [
+      {
+        name: "command.palette.show",
+        title: t().cmd_palette_show,
+        hidden: true,
+        run: () => {
+          command.show()
+        },
       },
-      onSelect: () => {
-        dialog.replace(() => <DialogSessionList />)
+      {
+        name: "session.list",
+        title: t().session_switch,
+        category: t().cat_session,
+        suggested: sync.data.session.length > 0,
+        slashName: "sessions",
+        slashAliases: ["resume", "continue"],
+        run: () => {
+          dialog.replace(() => <DialogSessionList />)
+        },
       },
-    },
-    {
-      title: t().session_new,
-      suggested: route.data.type === "session",
-      value: "session.new",
-      keybind: "session_new",
-      category: t().cat_session,
-      slash: {
-        name: "new",
-        aliases: ["clear"],
+      {
+        name: "session.new",
+        title: t().session_new,
+        suggested: route.data.type === "session",
+        category: t().cat_session,
+        slashName: "new",
+        slashAliases: ["clear"],
+        run: () => {
+          route.navigate({
+            type: "home",
+          })
+          dialog.clear()
+        },
       },
-      onSelect: () => {
-        route.navigate({
-          type: "home",
-        })
-        dialog.clear()
+      {
+        name: "model.list",
+        title: t().cmd_model_list,
+        suggested: true,
+        category: t().cat_agent,
+        slashName: "models",
+        run: () => {
+          dialog.replace(() => <DialogModel />)
+        },
       },
-    },
-    {
-      title: t().cmd_model_list,
-      value: "model.list",
-      keybind: "model_list",
-      suggested: true,
-      category: t().cat_agent,
-      slash: {
-        name: "models",
+      {
+        name: "model.cycle_recent",
+        title: t().cmd_model_cycle,
+        category: t().cat_agent,
+        hidden: true,
+        run: () => {
+          local.model.cycle(1)
+        },
       },
-      onSelect: () => {
-        dialog.replace(() => <DialogModel />)
+      {
+        name: "model.cycle_recent_reverse",
+        title: t().cmd_model_cycle_rev,
+        category: t().cat_agent,
+        hidden: true,
+        run: () => {
+          local.model.cycle(-1)
+        },
       },
-    },
-    {
-      title: t().cmd_model_cycle,
-      value: "model.cycle_recent",
-      keybind: "model_cycle_recent",
-      category: t().cat_agent,
-      hidden: true,
-      onSelect: () => {
-        local.model.cycle(1)
+      {
+        name: "model.cycle_favorite",
+        title: t().cmd_favorite_cycle,
+        category: t().cat_agent,
+        hidden: true,
+        run: () => {
+          local.model.cycleFavorite(1)
+        },
       },
-    },
-    {
-      title: t().cmd_model_cycle_rev,
-      value: "model.cycle_recent_reverse",
-      keybind: "model_cycle_recent_reverse",
-      category: t().cat_agent,
-      hidden: true,
-      onSelect: () => {
-        local.model.cycle(-1)
+      {
+        name: "model.cycle_favorite_reverse",
+        title: t().cmd_favorite_cycle_rev,
+        category: t().cat_agent,
+        hidden: true,
+        run: () => {
+          local.model.cycleFavorite(-1)
+        },
       },
-    },
-    {
-      title: t().cmd_favorite_cycle,
-      value: "model.cycle_favorite",
-      keybind: "model_cycle_favorite",
-      category: t().cat_agent,
-      hidden: true,
-      onSelect: () => {
-        local.model.cycleFavorite(1)
+      {
+        name: "agent.list",
+        title: t().cmd_agent_list,
+        category: t().cat_agent,
+        slashName: "agents",
+        run: () => {
+          dialog.replace(() => <DialogAgent />)
+        },
       },
-    },
-    {
-      title: t().cmd_favorite_cycle_rev,
-      value: "model.cycle_favorite_reverse",
-      keybind: "model_cycle_favorite_reverse",
-      category: t().cat_agent,
-      hidden: true,
-      onSelect: () => {
-        local.model.cycleFavorite(-1)
+      {
+        name: "mcp.list",
+        title: t().cmd_mcp_list,
+        category: t().cat_agent,
+        slashName: "mcps",
+        run: () => {
+          dialog.replace(() => <DialogMcp />)
+        },
       },
-    },
-    {
-      title: t().cmd_agent_list,
-      value: "agent.list",
-      keybind: "agent_list",
-      category: t().cat_agent,
-      slash: {
-        name: "agents",
+      {
+        name: "agent.cycle",
+        title: t().cmd_agent_cycle,
+        category: t().cat_agent,
+        hidden: true,
+        run: () => {
+          local.agent.move(1)
+        },
       },
-      onSelect: () => {
-        dialog.replace(() => <DialogAgent />)
+      {
+        name: "variant.cycle",
+        title: t().cmd_variant_cycle,
+        category: t().cat_agent,
+        run: () => {
+          local.model.variant.cycle()
+        },
       },
-    },
-    {
-      title: t().cmd_mcp_list,
-      value: "mcp.list",
-      category: t().cat_agent,
-      slash: {
-        name: "mcps",
+      {
+        name: "variant.list",
+        title: t().cmd_variant_list,
+        category: t().cat_agent,
+        hidden: local.model.variant.list().length === 0,
+        slashName: "variants",
+        run: () => {
+          dialog.replace(() => <DialogVariant />)
+        },
       },
-      onSelect: () => {
-        dialog.replace(() => <DialogMcp />)
+      {
+        name: "agent.cycle.reverse",
+        title: t().cmd_agent_cycle_rev,
+        category: t().cat_agent,
+        hidden: true,
+        run: () => {
+          local.agent.move(-1)
+        },
       },
-    },
-    {
-      title: t().cmd_agent_cycle,
-      value: "agent.cycle",
-      keybind: "agent_cycle",
-      category: t().cat_agent,
-      hidden: true,
-      onSelect: () => {
-        local.agent.move(1)
+      {
+        name: "provider.connect",
+        title: t().cmd_provider_connect,
+        suggested: !connected(),
+        slashName: "connect",
+        run: () => {
+          dialog.replace(() => <DialogProviderList />)
+        },
+        category: t().cat_provider,
       },
-    },
-    {
-      title: t().cmd_variant_cycle,
-      value: "variant.cycle",
-      keybind: "variant_cycle",
-      category: t().cat_agent,
-      onSelect: () => {
-        local.model.variant.cycle()
-      },
-    },
-    {
-      title: t().cmd_variant_list,
-      value: "variant.list",
-      keybind: "variant_list",
-      category: t().cat_agent,
-      hidden: local.model.variant.list().length === 0,
-      slash: {
-        name: "variants",
-      },
-      onSelect: () => {
-        dialog.replace(() => <DialogVariant />)
-      },
-    },
-    {
-      title: t().cmd_agent_cycle_rev,
-      value: "agent.cycle.reverse",
-      keybind: "agent_cycle_reverse",
-      category: t().cat_agent,
-      hidden: true,
-      onSelect: () => {
-        local.agent.move(-1)
-      },
-    },
-    {
-      title: t().cmd_provider_connect,
-      value: "provider.connect",
-      suggested: !connected(),
-      slash: {
-        name: "connect",
-      },
-      onSelect: () => {
-        dialog.replace(() => <DialogProviderList />)
-      },
-      category: t().cat_provider,
-    },
-    ...(sync.data.console_state.switchableOrgCount > 1
-      ? [
-          {
-            title: t().cmd_org_switch,
-            value: "console.org.switch",
-            suggested: Boolean(sync.data.console_state.activeOrgName),
-            slash: {
-              name: "org",
-              aliases: ["orgs", "switch-org"],
+      ...(sync.data.console_state.switchableOrgCount > 1
+        ? [
+            {
+              name: "console.org.switch",
+              title: t().cmd_org_switch,
+              suggested: Boolean(sync.data.console_state.activeOrgName),
+              slashName: "org",
+              slashAliases: ["orgs", "switch-org"],
+              run: () => {
+                dialog.replace(() => <DialogConsoleOrg />)
+              },
+              category: t().cat_provider,
             },
-            onSelect: () => {
-              dialog.replace(() => <DialogConsoleOrg />)
-            },
-            category: t().cat_provider,
-          },
-        ]
-      : []),
-    {
-      title: t().cmd_status,
-      keybind: "status_view",
-      value: "opencode.status",
-      slash: {
-        name: "status",
+          ]
+        : []),
+      {
+        name: "opencode.status",
+        title: t().cmd_status,
+        slashName: "status",
+        run: () => {
+          dialog.replace(() => <DialogStatus />)
+        },
+        category: t().cat_system,
       },
-      onSelect: () => {
-        dialog.replace(() => <DialogStatus />)
+      {
+        name: "theme.switch",
+        title: t().cmd_theme_switch,
+        slashName: "themes",
+        run: () => {
+          dialog.replace(() => <DialogThemeList />)
+        },
+        category: t().cat_system,
       },
-      category: t().cat_system,
-    },
-    {
-      title: t().cmd_theme_switch,
-      value: "theme.switch",
-      keybind: "theme_list",
-      slash: {
-        name: "themes",
+      {
+        name: "theme.switch_mode",
+        title: t().cmd_theme_mode,
+        run: () => {
+          setMode(mode() === "dark" ? "light" : "dark")
+          dialog.clear()
+        },
+        category: t().cat_system,
       },
-      onSelect: () => {
-        dialog.replace(() => <DialogThemeList />)
+      {
+        name: "theme.mode.lock",
+        title: t().cmd_theme_lock(locked()),
+        run: () => {
+          if (locked()) unlock()
+          else lock()
+          dialog.clear()
+        },
+        category: t().cat_system,
       },
-      category: t().cat_system,
-    },
-    {
-      title: t().cmd_theme_mode,
-      value: "theme.switch_mode",
-      onSelect: (dialog) => {
-        setMode(mode() === "dark" ? "light" : "dark")
-        dialog.clear()
+      {
+        name: "app.language",
+        title: t().cmd_language,
+        category: t().cat_system,
+        run: () => {
+          dialog.replace(() => (
+            <DialogSelect
+              title={t().cmd_language}
+              options={[
+                { title: t().lang_en, value: "en", gutter: lang() === "en" ? <text>✓</text> : undefined },
+                { title: t().lang_ko, value: "ko", gutter: lang() === "ko" ? <text>✓</text> : undefined },
+              ]}
+              onSelect={(opt) => {
+                setLanguage(opt.value)
+                kv.set("language", opt.value)
+                dialog.clear()
+              }}
+            />
+          ))
+        },
       },
-      category: t().cat_system,
-    },
-    {
-      title: t().cmd_theme_lock(locked()),
-      value: "theme.mode.lock",
-      onSelect: (dialog) => {
-        if (locked()) unlock()
-        else lock()
-        dialog.clear()
+      {
+        name: "help.show",
+        title: t().cmd_help,
+        slashName: "help",
+        run: () => {
+          dialog.replace(() => <DialogHelp />)
+        },
+        category: t().cat_system,
       },
-      category: t().cat_system,
-    },
-    {
-      title: t().cmd_language,
-      value: "app.language",
-      category: t().cat_system,
-      onSelect: () => {
-        dialog.replace(() => (
-          <DialogSelect
-            title={t().cmd_language}
-            options={[
-              { title: t().lang_en, value: "en", gutter: lang() === "en" ? <text>✓</text> : undefined },
-              { title: t().lang_ko, value: "ko", gutter: lang() === "ko" ? <text>✓</text> : undefined },
-            ]}
-            onSelect={(opt) => {
-              setLanguage(opt.value)
-              kv.set("language", opt.value)
-              dialog.clear()
-            }}
-          />
-        ))
+      {
+        name: "docs.open",
+        title: t().cmd_docs,
+        run: () => {
+          open("https://opencode.ai/docs").catch(() => {})
+          dialog.clear()
+        },
+        category: t().cat_system,
       },
-    },
-    {
-      title: t().cmd_help,
-      value: "help.show",
-      slash: {
-        name: "help",
+      {
+        name: "app.exit",
+        title: t().cmd_exit,
+        slashName: "exit",
+        slashAliases: ["quit", "q"],
+        enabled: () => {
+          const current = promptRef.current
+          if (!current?.focused) return true
+          return current.current.input === ""
+        },
+        run: () => exit(),
+        category: t().cat_system,
       },
-      onSelect: () => {
-        dialog.replace(() => <DialogHelp />)
+      {
+        name: "app.debug",
+        title: t().cmd_debug,
+        category: t().cat_system,
+        run: () => {
+          renderer.toggleDebugOverlay()
+          dialog.clear()
+        },
       },
-      category: t().cat_system,
-    },
-    {
-      title: t().cmd_docs,
-      value: "docs.open",
-      onSelect: () => {
-        open("https://opencode.ai/docs").catch(() => {})
-        dialog.clear()
+      {
+        name: "app.console",
+        title: t().cmd_console,
+        category: t().cat_system,
+        run: () => {
+          renderer.console.toggle()
+          dialog.clear()
+        },
       },
-      category: t().cat_system,
-    },
-    {
-      title: t().cmd_exit,
-      value: "app.exit",
-      slash: {
-        name: "exit",
-        aliases: ["quit", "q"],
+      {
+        name: "app.heap_snapshot",
+        title: t().cmd_heap,
+        category: t().cat_system,
+        run: async () => {
+          const files = await props.onSnapshot?.()
+          toast.show({
+            variant: "info",
+            message: t().heap_snapshot(files?.join(", ") ?? ""),
+            duration: 5000,
+          })
+          dialog.clear()
+        },
       },
-      onSelect: () => exit(),
-      category: t().cat_system,
-    },
-    {
-      title: t().cmd_debug,
-      category: t().cat_system,
-      value: "app.debug",
-      onSelect: (dialog) => {
-        renderer.toggleDebugOverlay()
-        dialog.clear()
-      },
-    },
-    {
-      title: t().cmd_console,
-      category: t().cat_system,
-      value: "app.console",
-      onSelect: (dialog) => {
-        renderer.console.toggle()
-        dialog.clear()
-      },
-    },
-    {
-      title: t().cmd_heap,
-      category: t().cat_system,
-      value: "app.heap_snapshot",
-      onSelect: async (dialog) => {
-        const files = await props.onSnapshot?.()
-        toast.show({
-          variant: "info",
-          message: t().heap_snapshot(files?.join(", ") ?? ""),
-          duration: 5000,
-        })
-        dialog.clear()
-      },
-    },
-    {
-      title: t().cmd_suspend,
-      value: "terminal.suspend",
-      keybind: "terminal_suspend",
-      category: t().cat_system,
-      hidden: true,
-      enabled: tuiConfig.keybinds?.terminal_suspend !== "none",
-      onSelect: () => {
-        process.once("SIGCONT", () => {
-          renderer.resume()
-        })
+      {
+        name: "terminal.suspend",
+        title: t().cmd_suspend,
+        category: t().cat_system,
+        hidden: true,
+        enabled: process.platform !== "win32",
+        run: () => {
+          process.once("SIGCONT", () => {
+            renderer.resume()
+          })
 
-        renderer.suspend()
-        // pid=0 means send the signal to all processes in the process group
-        process.kill(0, "SIGTSTP")
+          renderer.suspend()
+          process.kill(0, "SIGTSTP")
+        },
       },
-    },
-    {
-      title: t().cmd_title_toggle(terminalTitleEnabled()),
-      value: "terminal.title.toggle",
-      keybind: "terminal_title_toggle",
-      category: t().cat_system,
-      onSelect: (dialog) => {
-        setTerminalTitleEnabled((prev) => {
-          const next = !prev
-          kv.set("terminal_title_enabled", next)
-          if (!next) renderer.setTerminalTitle("")
-          return next
-        })
-        dialog.clear()
+      {
+        name: "terminal.title.toggle",
+        title: t().cmd_title_toggle(terminalTitleEnabled()),
+        category: t().cat_system,
+        run: () => {
+          setTerminalTitleEnabled((prev) => {
+            const next = !prev
+            kv.set("terminal_title_enabled", next)
+            if (!next) renderer.setTerminalTitle("")
+            return next
+          })
+          dialog.clear()
+        },
       },
-    },
-    {
-      title: t().cmd_animations_toggle(kv.get("animations_enabled", true)),
-      value: "app.toggle.animations",
-      category: t().cat_system,
-      onSelect: (dialog) => {
-        kv.set("animations_enabled", !kv.get("animations_enabled", true))
-        dialog.clear()
+      {
+        name: "app.toggle.animations",
+        title: t().cmd_animations_toggle(kv.get("animations_enabled", true)),
+        category: t().cat_system,
+        run: () => {
+          kv.set("animations_enabled", !kv.get("animations_enabled", true))
+          dialog.clear()
+        },
       },
-    },
-    {
-      title: kv.get("file_context_enabled", true) ? "Disable file context" : "Enable file context",
-      value: "app.toggle.file_context",
-      category: "System",
-      onSelect: (dialog) => {
-        kv.set("file_context_enabled", !kv.get("file_context_enabled", true))
-        dialog.clear()
+      {
+        name: "app.toggle.file_context",
+        title: t().cmd_file_context_toggle(kv.get("file_context_enabled", true)),
+        category: t().cat_system,
+        run: () => {
+          kv.set("file_context_enabled", !kv.get("file_context_enabled", true))
+          dialog.clear()
+        },
       },
-    },
-    {
-      title: pasteSummaryEnabled() ? "Disable paste summary" : "Enable paste summary",
-      value: "app.toggle.paste_summary",
-      category: "System",
-      onSelect: (dialog) => {
-        setPasteSummaryEnabled((prev) => {
-          const next = !prev
-          kv.set("paste_summary_enabled", next)
-          return next
-        })
-        dialog.clear()
+      {
+        name: "app.toggle.diffwrap",
+        title: t().cmd_diffwrap_toggle(kv.get("diff_wrap_mode", "word") === "word"),
+        category: t().cat_system,
+        run: () => {
+          const current = kv.get("diff_wrap_mode", "word")
+          kv.set("diff_wrap_mode", current === "word" ? "none" : "word")
+          dialog.clear()
+        },
       },
-    },
-    {
-      title: kv.get("session_directory_filter_enabled", true)
-        ? "Disable session directory filtering"
-        : "Enable session directory filtering",
-      value: "app.toggle.session_directory_filter",
-      category: "System",
-      onSelect: async (dialog) => {
-        kv.set("session_directory_filter_enabled", !kv.get("session_directory_filter_enabled", true))
-        await sync.session.refresh()
-        dialog.clear()
+      {
+        name: "app.toggle.paste_summary",
+        title: t().cmd_paste_summary_toggle(pasteSummaryEnabled()),
+        category: t().cat_system,
+        run: () => {
+          setPasteSummaryEnabled((prev) => {
+            const next = !prev
+            kv.set("paste_summary_enabled", next)
+            return next
+          })
+          dialog.clear()
+        },
       },
-    },
-    {
-      title: t().cmd_diffwrap_toggle(kv.get("diff_wrap_mode", "word") === "word"),
-      value: "app.toggle.diffwrap",
-      category: t().cat_system,
-      onSelect: (dialog) => {
-        const current = kv.get("diff_wrap_mode", "word")
-        kv.set("diff_wrap_mode", current === "word" ? "none" : "word")
-        dialog.clear()
+      {
+        name: "app.toggle.session_directory_filter",
+        title: t().cmd_session_filter_toggle(kv.get("session_directory_filter_enabled", true)),
+        category: t().cat_system,
+        run: async () => {
+          kv.set("session_directory_filter_enabled", !kv.get("session_directory_filter_enabled", true))
+          await sync.session.refresh()
+          dialog.clear()
+        },
       },
-    },
-  ])
+    ].map((command) => ({
+      namespace: "palette",
+      ...command,
+    })),
+  )
+
+  useBindings(() => ({
+    commands: appCommands(),
+  }))
+
+  useBindings(() => ({
+    enabled: command.matcher,
+    bindings: sections.global,
+  }))
 
   event.on(TuiEvent.CommandExecute.type, (evt) => {
-    command.trigger(evt.properties.command)
+    command.run(evt.properties.command)
   })
 
   event.on(TuiEvent.ToastShow.type, (evt) => {
@@ -894,6 +862,23 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
     )
 
     void exit()
+  })
+
+  event.on("installation.updated", (evt) => {
+    toast.show({
+      variant: "success",
+      title: t().update_complete_title,
+      message: t().update_complete_msg(evt.properties.version),
+      duration: 8000,
+    })
+  })
+
+  event.on("plugin.refreshed", (evt) => {
+    toast.show({
+      variant: "success",
+      message: t().plugin_refreshed(evt.properties.name, evt.properties.version),
+      duration: 5000,
+    })
   })
 
   const plugin = createMemo(() => {

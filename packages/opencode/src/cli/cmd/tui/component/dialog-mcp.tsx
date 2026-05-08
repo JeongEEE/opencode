@@ -5,7 +5,6 @@ import { map, pipe, entries, sortBy } from "remeda"
 import { DialogSelect, type DialogSelectRef, type DialogSelectOption } from "@tui/ui/dialog-select"
 import { useTheme } from "../context/theme"
 import { useI18n } from "../context/i18n"
-import { Keybind } from "@/util/keybind"
 import { TextAttributes } from "@opentui/core"
 import { useSDK } from "@tui/context/sdk"
 
@@ -48,9 +47,9 @@ export function DialogMcp() {
     )
   })
 
-  const keybinds = createMemo(() => [
+  const actions = createMemo(() => [
     {
-      keybind: Keybind.parse("space")[0],
+      command: "dialog.action.toggle",
       title: t().hint_toggle,
       onTrigger: async (option: DialogSelectOption<string>) => {
         // Prevent toggling while an operation is already in progress
@@ -80,7 +79,7 @@ export function DialogMcp() {
       ref={setRef}
       title={t().mcp_title}
       options={options()}
-      keybind={keybinds()}
+      actions={actions()}
       onSelect={(_option) => {
         // Don't close on select, only on escape
       }}
