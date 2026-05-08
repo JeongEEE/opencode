@@ -1,6 +1,7 @@
 import type { TuiPlugin, TuiPluginApi, TuiPluginModule } from "@opencode-ai/plugin/tui"
-import { createMemo, Match, Show, Switch } from "solid-js"
+import { createMemo, createSignal, Match, Show, Switch } from "solid-js"
 import { Global } from "@opencode-ai/core/global"
+import path from "path"
 
 const id = "internal:home-footer"
 
@@ -54,7 +55,16 @@ function Version(props: { api: TuiPluginApi }) {
   )
 }
 
-function View(props: { api: TuiPluginApi }) {
+function OmaVersion(props: { api: TuiPluginApi; version: () => string | undefined }) {
+  const theme = () => props.api.theme.current
+  return (
+    <Show when={props.version()}>
+      <text fg={theme().textMuted}>oma v{props.version()}</text>
+    </Show>
+  )
+}
+
+function View(props: { api: TuiPluginApi; omaVersion: () => string | undefined }) {
   return (
     <box
       width="100%"
@@ -68,6 +78,7 @@ function View(props: { api: TuiPluginApi }) {
       <Directory api={props.api} />
       <Mcp api={props.api} />
       <box flexGrow={1} />
+      <OmaVersion api={props.api} version={props.omaVersion} />
       <Version api={props.api} />
       <box width={2} />
     </box>
@@ -75,11 +86,28 @@ function View(props: { api: TuiPluginApi }) {
 }
 
 const tui: TuiPlugin = async (api) => {
+  const [omaVersion, setOmaVersion] = createSignal<string | undefined>(undefined)
+
+  const pkgPath = path.join(
+    Global.Path.cache,
+    "packages",
+    "oh-my-openagent@latest",
+    "node_modules",
+    "oh-my-openagent",
+    "package.json",
+  )
+  await Bun.file(pkgPath)
+    .json()
+    .then((pkg: { version?: string }) => {
+      if (pkg.version) setOmaVersion(pkg.version)
+    })
+    .catch(() => {})
+
   api.slots.register({
     order: 100,
     slots: {
       home_footer() {
-        return <View api={api} />
+        return <View api={api} omaVersion={omaVersion} />
       },
     },
   })
