@@ -115,6 +115,7 @@ export const ko: Translations = {
 
   // command palette
   cmd_palette_title: "커맨드",
+  cmd_palette_show: "커맨드 팔레트 열기",
   cmd_language: "언어 변경",
   cmd_clear_prompt: "프롬프트 지우기",
   cmd_submit_prompt: "프롬프트 제출",
@@ -125,6 +126,9 @@ export const ko: Translations = {
   cmd_stash_prompt: "프롬프트 임시저장",
   cmd_stash_pop: "임시저장 복원",
   cmd_stash_list: "임시저장 목록",
+  cmd_prompt_remove_editor_ctx: "에디터 컨텍스트 제거",
+  cmd_workspace_warp: "워크스페이스 변경",
+  cmd_workspace_warp_desc: "세션의 워크스페이스를 변경합니다",
 
   // command categories
   cat_suggested: "추천",
@@ -132,6 +136,7 @@ export const ko: Translations = {
   cat_agent: "에이전트",
   cat_provider: "공급자",
   cat_system: "시스템",
+  cat_prompt: "프롬프트",
 
   // languages
   lang_en: "English",

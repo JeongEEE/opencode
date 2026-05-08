@@ -113,6 +113,7 @@ export const en = {
 
   // command palette
   cmd_palette_title: "Commands",
+  cmd_palette_show: "Show command palette",
   cmd_language: "Switch language",
   cmd_clear_prompt: "Clear prompt",
   cmd_submit_prompt: "Submit prompt",
@@ -123,6 +124,9 @@ export const en = {
   cmd_stash_prompt: "Stash prompt",
   cmd_stash_pop: "Stash pop",
   cmd_stash_list: "Stash list",
+  cmd_prompt_remove_editor_ctx: "Remove editor context",
+  cmd_workspace_warp: "Warp",
+  cmd_workspace_warp_desc: "Change the workspace for the session",
 
   // command categories
   cat_suggested: "Suggested",
@@ -130,6 +134,7 @@ export const en = {
   cat_agent: "Agent",
   cat_provider: "Provider",
   cat_system: "System",
+  cat_prompt: "Prompt",
 
   // languages
   lang_en: "English",

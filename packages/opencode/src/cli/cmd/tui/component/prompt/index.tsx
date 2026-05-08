@@ -390,7 +390,7 @@ export function Prompt(props: PromptProps) {
       {
         title: t().cmd_clear_prompt,
         name: "prompt.clear",
-        category: "Prompt",
+        category: t().cat_prompt,
         hidden: true,
         run: () => {
           input.clear()
@@ -406,7 +406,7 @@ export function Prompt(props: PromptProps) {
       {
         title: t().cmd_submit_prompt,
         name: "prompt.submit",
-        category: "Prompt",
+        category: t().cat_prompt,
         hidden: true,
         run: async () => {
           if (!input.focused) return
@@ -417,9 +417,9 @@ export function Prompt(props: PromptProps) {
         },
       },
       {
-        title: "Remove editor context",
+        title: t().cmd_prompt_remove_editor_ctx,
         name: "prompt.editor_context.clear",
-        category: "Prompt",
+        category: t().cat_prompt,
         enabled: Boolean(editorContext()),
         run: () => {
           dismissEditorContext()
@@ -429,7 +429,7 @@ export function Prompt(props: PromptProps) {
       {
         title: t().cmd_paste,
         name: "prompt.paste",
-        category: "Prompt",
+        category: t().cat_prompt,
         hidden: true,
         run: async (ctx: CommandContext<Renderable, KeyEvent>) => {
           ctx.event.preventDefault()
@@ -451,7 +451,7 @@ export function Prompt(props: PromptProps) {
       {
         title: t().cmd_interrupt,
         name: "session.interrupt",
-        category: "Session",
+        category: t().cat_session,
         hidden: true,
         enabled: status().type !== "idle",
         run: () => {
@@ -481,7 +481,7 @@ export function Prompt(props: PromptProps) {
       },
       {
         title: t().cmd_open_editor,
-        category: "Session",
+        category: t().cat_session,
         name: "prompt.editor",
         slashName: "editor",
         run: async () => {
@@ -566,7 +566,7 @@ export function Prompt(props: PromptProps) {
       {
         title: t().cmd_skills,
         name: "prompt.skills",
-        category: "Prompt",
+        category: t().cat_prompt,
         slashName: "skills",
         run: () => {
           dialog.replace(() => (
@@ -584,10 +584,10 @@ export function Prompt(props: PromptProps) {
         },
       },
       {
-        title: "Warp",
-        desc: "Change the workspace for the session",
+        title: t().cmd_workspace_warp,
+        desc: t().cmd_workspace_warp_desc,
         name: "workspace.set",
-        category: "Session",
+        category: t().cat_session,
         enabled: Flag.OPENCODE_EXPERIMENTAL_WORKSPACES,
         slashName: "warp",
         run: () => {
@@ -786,7 +786,7 @@ export function Prompt(props: PromptProps) {
       {
         title: t().cmd_stash_prompt,
         name: "prompt.stash",
-        category: "Prompt",
+        category: t().cat_prompt,
         enabled: !!store.prompt.input,
         run: () => {
           if (!store.prompt.input) return
@@ -804,7 +804,7 @@ export function Prompt(props: PromptProps) {
       {
         title: t().cmd_stash_pop,
         name: "prompt.stash.pop",
-        category: "Prompt",
+        category: t().cat_prompt,
         enabled: stash.list().length > 0,
         run: () => {
           const entry = stash.pop()
@@ -820,7 +820,7 @@ export function Prompt(props: PromptProps) {
       {
         title: t().cmd_stash_list,
         name: "prompt.stash.list",
-        category: "Prompt",
+        category: t().cat_prompt,
         enabled: stash.list().length > 0,
         run: () => {
           dialog.replace(() => (

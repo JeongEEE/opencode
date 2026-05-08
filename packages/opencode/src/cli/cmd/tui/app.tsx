@@ -403,7 +403,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
     [
       {
         name: "command.palette.show",
-        title: "Show command palette",
+        title: t().cmd_palette_show,
         hidden: true,
         run: () => {
           command.show()
