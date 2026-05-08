@@ -720,8 +720,8 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
       {
         name: "app.toggle.file_context",
-        title: kv.get("file_context_enabled", true) ? "Disable file context" : "Enable file context",
-        category: "System",
+        title: t().cmd_file_context_toggle(kv.get("file_context_enabled", true)),
+        category: t().cat_system,
         run: () => {
           kv.set("file_context_enabled", !kv.get("file_context_enabled", true))
           dialog.clear()
@@ -729,8 +729,8 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
       {
         name: "app.toggle.diffwrap",
-        title: kv.get("diff_wrap_mode", "word") === "word" ? "Disable diff wrapping" : "Enable diff wrapping",
-        category: "System",
+        title: t().cmd_diffwrap_toggle(kv.get("diff_wrap_mode", "word") === "word"),
+        category: t().cat_system,
         run: () => {
           const current = kv.get("diff_wrap_mode", "word")
           kv.set("diff_wrap_mode", current === "word" ? "none" : "word")
@@ -739,8 +739,8 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
       {
         name: "app.toggle.paste_summary",
-        title: pasteSummaryEnabled() ? "Disable paste summary" : "Enable paste summary",
-        category: "System",
+        title: t().cmd_paste_summary_toggle(pasteSummaryEnabled()),
+        category: t().cat_system,
         run: () => {
           setPasteSummaryEnabled((prev) => {
             const next = !prev
@@ -752,9 +752,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
       {
         name: "app.toggle.session_directory_filter",
-        title: kv.get("session_directory_filter_enabled", true)
-          ? "Disable session directory filtering"
-          : "Enable session directory filtering",
+        title: t().cmd_session_filter_toggle(kv.get("session_directory_filter_enabled", true)),
         category: t().cat_system,
         run: async () => {
           kv.set("session_directory_filter_enabled", !kv.get("session_directory_filter_enabled", true))

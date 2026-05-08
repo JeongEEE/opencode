@@ -7,12 +7,13 @@ import { useBindings } from "../../keymap"
 const id = "internal:home-tips"
 
 function View(props: { api: TuiPluginApi; hidden: boolean; show: boolean; connected: boolean }) {
+  const { t } = useI18n()
   useBindings(() => ({
     commands: [
       {
         name: "tips.toggle",
-        title: props.hidden ? "Show tips" : "Hide tips",
-        category: "System",
+        title: props.hidden ? t().tips_show : t().tips_hide,
+        category: t().cat_system,
         namespace: "palette",
         run() {
           props.api.kv.set("tips_hidden", !props.api.kv.get("tips_hidden", false))

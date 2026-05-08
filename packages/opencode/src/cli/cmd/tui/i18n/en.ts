@@ -127,6 +127,10 @@ export const en = {
   cmd_prompt_remove_editor_ctx: "Remove editor context",
   cmd_workspace_warp: "Warp",
   cmd_workspace_warp_desc: "Change the workspace for the session",
+  cmd_file_context_toggle: (on: boolean): string => (on ? "Disable file context" : "Enable file context"),
+  cmd_paste_summary_toggle: (on: boolean): string => (on ? "Disable paste summary" : "Enable paste summary"),
+  cmd_session_filter_toggle: (on: boolean): string =>
+    on ? "Disable session directory filtering" : "Enable session directory filtering",
 
   // command categories
   cat_suggested: "Suggested",

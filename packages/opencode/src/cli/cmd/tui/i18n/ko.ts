@@ -129,6 +129,9 @@ export const ko: Translations = {
   cmd_prompt_remove_editor_ctx: "에디터 컨텍스트 제거",
   cmd_workspace_warp: "워크스페이스 변경",
   cmd_workspace_warp_desc: "세션의 워크스페이스를 변경합니다",
+  cmd_file_context_toggle: (on) => (on ? "파일 컨텍스트 비활성화" : "파일 컨텍스트 활성화"),
+  cmd_paste_summary_toggle: (on) => (on ? "붙여넣기 요약 비활성화" : "붙여넣기 요약 활성화"),
+  cmd_session_filter_toggle: (on) => (on ? "세션 디렉터리 필터 비활성화" : "세션 디렉터리 필터 활성화"),
 
   // command categories
   cat_suggested: "추천",

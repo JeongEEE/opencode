@@ -1,6 +1,7 @@
 import { createContext, createMemo, createSignal, useContext, type Accessor, type ParentProps } from "solid-js"
 import { DialogSelect, type DialogSelectRef } from "@tui/ui/dialog-select"
 import { useDialog, type DialogContext } from "@tui/ui/dialog"
+import { useI18n } from "@tui/context/i18n"
 import {
   formatKeyBindings,
   reactiveMatcherFromSignal,
@@ -105,6 +106,7 @@ export function useCommandPalette() {
 
 function CommandPaletteDialog(props: { run(command: string): void }) {
   const config = useTuiConfig()
+  const { t } = useI18n()
   const entries = useKeymapSelector((keymap: OpenTuiKeymap) => {
     const query = {
       namespace: "palette",
@@ -149,13 +151,13 @@ function CommandPaletteDialog(props: { run(command: string): void }) {
         .map((option) => ({
           ...option,
           value: `suggested:${option.value}`,
-          category: "Suggested",
+          category: t().cat_suggested,
         })),
       ...options(),
     ]
   }
 
-  return <DialogSelect ref={(value) => (ref = value)} title="Commands" options={list()} />
+  return <DialogSelect ref={(value) => (ref = value)} title={t().cmd_palette_title} options={list()} />
 }
 
 export function useCommandSlashes(): Accessor<readonly SlashEntry[]> {
