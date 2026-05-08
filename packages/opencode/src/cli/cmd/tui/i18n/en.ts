@@ -370,6 +370,7 @@ export const en = {
   plugin_load_failed: "Installed plugin, but runtime load failed. See console/logs; restart TUI to retry.",
   plugin_loaded: (mod: string): string => `Loaded ${mod} in current session.`,
   plugin_update_failed: (id: string): string => `Failed to update plugin ${id}`,
+  plugin_refreshed: (name: string, version: string): string => `${name} updated to v${version}`,
   plugin_list_title: "Plugins",
   plugin_category_internal: "Internal",
   plugin_category_external: "External",

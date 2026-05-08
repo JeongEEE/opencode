@@ -896,6 +896,23 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
     void exit()
   })
 
+  event.on("installation.updated", (evt) => {
+    toast.show({
+      variant: "success",
+      title: t().update_complete_title,
+      message: t().update_complete_msg(evt.properties.version),
+      duration: 8000,
+    })
+  })
+
+  event.on("plugin.refreshed", (evt) => {
+    toast.show({
+      variant: "success",
+      message: t().plugin_refreshed(evt.properties.name, evt.properties.version),
+      duration: 5000,
+    })
+  })
+
   const plugin = createMemo(() => {
     if (!ready()) return
     if (route.data.type !== "plugin") return

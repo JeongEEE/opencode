@@ -77,6 +77,7 @@ export type Event =
   | EventSessionNextCompactionEnded
   | EventServerConnected
   | EventGlobalDisposed
+  | EventPluginRefreshed
 
 export type OAuth = {
   type: "oauth"
@@ -875,6 +876,7 @@ export type GlobalEvent = {
     | SyncEventSessionNextCompactionStarted
     | SyncEventSessionNextCompactionDelta
     | SyncEventSessionNextCompactionEnded
+    | EventPluginRefreshed
 }
 
 /**
@@ -2357,6 +2359,16 @@ export type EventInstallationUpdated = {
   id: string
   type: "installation.updated"
   properties: {
+    version: string
+  }
+}
+
+// @custom-patch: do not remove — SDK 재생성 시 수동 재추가 필요 (my-custom 전용)
+export type EventPluginRefreshed = {
+  id: string
+  type: "plugin.refreshed"
+  properties: {
+    name: string
     version: string
   }
 }

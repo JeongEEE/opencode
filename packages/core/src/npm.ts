@@ -21,8 +21,15 @@ export interface EntryPoint {
   readonly entrypoint: Option.Option<string>
 }
 
+export interface AddOptions {
+  readonly refresh?: {
+    readonly ttl: number
+    readonly onRefreshed?: (version: string) => void
+  }
+}
+
 export interface Interface {
-  readonly add: (pkg: string) => Effect.Effect<EntryPoint, InstallFailedError | EffectFlock.LockError>
+  readonly add: (pkg: string, options?: AddOptions) => Effect.Effect<EntryPoint, InstallFailedError | EffectFlock.LockError>
   readonly install: (
     dir: string,
     input?: {
@@ -61,10 +68,16 @@ const resolveEntryPoint = (name: string, dir: string): EntryPoint => {
 interface ArboristNode {
   name: string
   path: string
+  version?: string
 }
 
 interface ArboristTree {
   edgesOut: Map<string, { to?: ArboristNode }>
+}
+
+// same logic as @/util/record — duplicated here because core cannot import from opencode
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null
 }
 
 export const layer = Layer.effect(
@@ -75,6 +88,22 @@ export const layer = Layer.effect(
     const fs = yield* FileSystem.FileSystem
     const flock = yield* EffectFlock.Service
     const directory = (pkg: string) => path.join(global.cache, "packages", sanitize(pkg))
+    const refreshStamp = (dir: string) => path.join(dir, ".refresh-check.json")
+    const resolveInstalled = (name: string, dir: string) => resolveEntryPoint(name, path.join(dir, "node_modules", name))
+    const writeRefreshStamp = Effect.fnUntraced(function* (dir: string, version?: string) {
+      yield* afs
+        .writeJson(refreshStamp(dir), version ? { checked_at: Date.now(), version } : { checked_at: Date.now() })
+        .pipe(Effect.orElseSucceed(() => {}))
+    })
+    const shouldRefresh = Effect.fnUntraced(function* (dir: string, ttl: number) {
+      const stamp = yield* afs.readJson(refreshStamp(dir)).pipe(Effect.orElseSucceed(() => undefined))
+      if (!isRecord(stamp)) return { yes: true, prevVersion: undefined as string | undefined }
+      if (typeof stamp.checked_at !== "number") return { yes: true, prevVersion: undefined as string | undefined }
+      return {
+        yes: Date.now() - stamp.checked_at >= ttl,
+        prevVersion: typeof stamp.version === "string" ? stamp.version : undefined,
+      }
+    })
     const reify = (input: { dir: string; add?: string[] }) =>
       Effect.gen(function* () {
         yield* flock.acquire(`npm-install:${input.dir}`)
@@ -110,7 +139,7 @@ export const layer = Layer.effect(
         }),
       )
 
-    const add = Effect.fn("Npm.add")(function* (pkg: string) {
+    const add = Effect.fn("Npm.add")(function* (pkg: string, options?: AddOptions) {
       const dir = directory(pkg)
       const name = (() => {
         try {
@@ -119,19 +148,35 @@ export const layer = Layer.effect(
           return pkg
         }
       })()
+      const installed = path.join(dir, "node_modules", name)
+      const cached = yield* afs.existsSafe(installed)
 
-      if (yield* afs.existsSafe(path.join(dir, "node_modules", name))) {
-        return resolveEntryPoint(name, path.join(dir, "node_modules", name))
-      }
+      if (cached) {
+        const ttl = options?.refresh?.ttl
+        if (!ttl) return resolveInstalled(name, dir)
+        const check = yield* shouldRefresh(dir, ttl)
+        if (!check.yes) return resolveInstalled(name, dir)
 
-      const tree = yield* reify({ dir, add: [pkg] })
-      const first = tree.edgesOut.values().next().value?.to
-      if (!first) {
-        const result = resolveEntryPoint(name, path.join(dir, "node_modules", name))
+        const refreshed = yield* reify({ dir, add: [pkg] }).pipe(Effect.option)
+        if (Option.isNone(refreshed)) return resolveInstalled(name, dir)
+        const first = refreshed.value.edgesOut.values().next().value?.to
+        yield* writeRefreshStamp(dir, first?.version)
+        // onRefreshed must be a sync callback — no async side effects
+        if (check.prevVersion && first?.version && first.version !== check.prevVersion)
+          yield* Effect.sync(() => options?.refresh?.onRefreshed?.(first.version!))
+        if (first) return resolveEntryPoint(first.name, first.path)
+        const result = resolveInstalled(name, dir)
         if (Option.isSome(result.entrypoint)) return result
         return yield* new InstallFailedError({ add: [pkg], dir })
       }
-      return resolveEntryPoint(first.name, first.path)
+
+      const tree = yield* reify({ dir, add: [pkg] })
+      if (options?.refresh) yield* writeRefreshStamp(dir, tree.edgesOut.values().next().value?.to?.version)
+      const first = tree.edgesOut.values().next().value?.to
+      if (first) return resolveEntryPoint(first.name, first.path)
+      const result = resolveInstalled(name, dir)
+      if (Option.isSome(result.entrypoint)) return result
+      return yield* new InstallFailedError({ add: [pkg], dir })
     }, Effect.scoped)
 
     const install: Interface["install"] = Effect.fn("Npm.install")(function* (dir, input) {

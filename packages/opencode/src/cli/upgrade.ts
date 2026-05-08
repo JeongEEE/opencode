@@ -4,6 +4,7 @@ import { AppRuntime } from "@/effect/app-runtime"
 import { Flag } from "@opencode-ai/core/flag/flag"
 import { Installation } from "@/installation"
 import { InstallationVersion } from "@opencode-ai/core/installation/version"
+import { GlobalBus } from "@/bus/global"
 
 export async function upgrade() {
   const config = await AppRuntime.runPromise(Config.Service.use((cfg) => cfg.getGlobal()))
@@ -28,6 +29,12 @@ export async function upgrade() {
 
   if (method === "unknown") return
   await Installation.upgrade(method, latest)
-    .then(() => Bus.publish(Installation.Event.Updated, { version: latest }))
+    .then(() => {
+      void Bus.publish(Installation.Event.Updated, { version: latest })
+      GlobalBus.emit("event", {
+        directory: "global",
+        payload: { type: Installation.Event.Updated.type, properties: { version: latest } },
+      })
+    })
     .catch(() => {})
 }

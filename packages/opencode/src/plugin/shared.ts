@@ -5,9 +5,13 @@ import semver from "semver"
 import { Filesystem } from "@/util/filesystem"
 import { isRecord } from "@/util/record"
 import { Npm } from "@opencode-ai/core/npm"
+import { GlobalBus } from "@/bus/global"
 
 // Old npm package names for plugins that are now built-in
 export const DEPRECATED_PLUGIN_PACKAGES = ["opencode-openai-codex-auth", "opencode-copilot-auth"]
+const LATEST_TRACKED_PLUGIN_REFRESH_TTL = 6 * 60 * 60 * 1000
+// my-custom: 자동갱신 대상 플러그인 목록 — upstream에 올리지 말 것
+const LATEST_TRACKED_PLUGIN_PACKAGES = new Set(["oh-my-openagent"])
 
 export function isDeprecatedPlugin(spec: string) {
   return DEPRECATED_PLUGIN_PACKAGES.some((pkg) => spec.includes(pkg))
@@ -208,7 +212,24 @@ export async function resolvePluginTarget(spec: string) {
   if (isPathPluginSpec(spec)) return resolvePathPluginTarget(spec)
   const hit = parse(spec)
   const pkg = hit?.name && hit.raw === hit.name ? `${hit.name}@latest` : spec
-  const result = await Npm.add(pkg)
+  const pluginName = hit?.name
+  const refresh = pluginName && (hit.raw === pluginName || hit.raw === `${pluginName}@latest`) && LATEST_TRACKED_PLUGIN_PACKAGES.has(pluginName)
+  const result = await Npm.add(
+    pkg,
+    refresh
+      ? {
+          refresh: {
+            ttl: LATEST_TRACKED_PLUGIN_REFRESH_TTL,
+            onRefreshed: (version) => {
+              GlobalBus.emit("event", {
+                directory: "global",
+                payload: { type: "plugin.refreshed", properties: { name: pluginName, version } },
+              })
+            },
+          },
+        }
+      : undefined,
+  )
   return result.directory
 }
 
