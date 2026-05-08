@@ -49,12 +49,10 @@ import type { WebSearchTool } from "@/tool/websearch"
 import type { TaskTool } from "@/tool/task"
 import type { QuestionTool } from "@/tool/question"
 import type { SkillTool } from "@/tool/skill"
-import { useKeyboard, useRenderer, useTerminalDimensions, type JSX } from "@opentui/solid"
+import { useRenderer, useTerminalDimensions, type JSX } from "@opentui/solid"
 import { useSDK } from "@tui/context/sdk"
 import { useEditorContext } from "@tui/context/editor"
-import { useCommandDialog } from "@tui/component/dialog-command"
 import type { DialogContext } from "@tui/ui/dialog"
-import { useKeybind } from "@tui/context/keybind"
 import { useDialog } from "../../ui/dialog"
 import { TodoItem } from "../../component/todo-item"
 import { DialogMessage } from "./dialog-message"
@@ -89,9 +87,11 @@ import { useTuiConfig } from "../../context/tui-config"
 import { useI18n } from "../../context/i18n"
 import { getScrollAcceleration } from "../../util/scroll"
 import { TuiPluginRuntime } from "@/cli/cmd/tui/plugin/runtime"
-import { DialogGoUpsell } from "../../component/dialog-go-upsell"
+import { DialogRetryAction } from "../../component/dialog-retry-action"
 import { SessionRetry } from "@/session/retry"
 import { getRevertDiffFiles } from "../../util/revert-diff"
+import { useCommandPalette } from "../../context/command-palette"
+import { useBindings, useCommandShortcut } from "../../keymap"
 
 addDefaultParsers(parsers.parsers)
 
@@ -126,6 +126,9 @@ export function Session() {
   const event = useEvent()
   const project = useProject()
   const tuiConfig = useTuiConfig()
+  const {
+    keymap: { sections },
+  } = tuiConfig
   const kv = useKV()
   const { theme } = useTheme()
   const promptRef = usePromptRef()
@@ -255,14 +258,14 @@ export function Session() {
     seeded = true
     r.set(route.prompt)
   }
-  const keybind = useKeybind()
+  const command = useCommandPalette()
   const dialog = useDialog()
   const renderer = useRenderer()
 
   event.on("session.status", (evt) => {
     if (evt.properties.sessionID !== route.sessionID) return
     if (evt.properties.status.type !== "retry") return
-    if (evt.properties.status.message !== SessionRetry.GO_UPSELL_MESSAGE) return
+    if (!evt.properties.status.action) return
     if (dialog.stack.length > 0) return
 
     const seen = kv.get(GO_UPSELL_LAST_SEEN_AT)
@@ -270,13 +273,12 @@ export function Session() {
 
     if (kv.get(GO_UPSELL_DONT_SHOW)) return
 
-    void DialogGoUpsell.show(dialog).then((dontShowAgain) => {
+    void DialogRetryAction.show(dialog, evt.properties.status.action).then((dontShowAgain) => {
       if (dontShowAgain) kv.set(GO_UPSELL_DONT_SHOW, true)
       kv.set(GO_UPSELL_LAST_SEEN_AT, Date.now())
     })
   })
 
-  // Allow exit when in child session (prompt is hidden)
   const exit = useExit()
 
   createEffect(() => {
@@ -296,13 +298,6 @@ export function Session() {
         ``,
       ].join("\n"),
     )
-  })
-
-  useKeyboard((evt) => {
-    if (!session()?.parentID) return
-    if (keybind.match("app_exit", evt)) {
-      void exit()
-    }
   })
 
   // Helper: Find next visible message boundary in direction
@@ -387,26 +382,24 @@ export function Session() {
     }
   }
 
-  function childSessionHandler(func: (dialog: DialogContext) => void) {
-    return (dialog: DialogContext) => {
+  function childSessionHandler(func: () => void) {
+    return () => {
       if (!session()?.parentID || dialog.stack.length > 0) return
-      func(dialog)
+      func()
     }
   }
 
-  const command = useCommandDialog()
-  command.register(() => [
+  const sessionCommandList = createMemo(() => [
     {
       title: t().cmd_session_share(!!session()?.share?.url),
       value: "session.share",
       suggested: route.type === "session",
-      keybind: "session_share",
       category: t().cat_session,
       enabled: sync.data.config.share !== "disabled",
       slash: {
         name: "share",
       },
-      onSelect: async (dialog) => {
+      run: async () => {
         const copy = (url: string) =>
           Clipboard.copy(url)
             .then(() => toast.show({ message: t().toast_share_copied, variant: "success" }))
@@ -439,24 +432,22 @@ export function Session() {
     {
       title: t().cmd_session_rename,
       value: "session.rename",
-      keybind: "session_rename",
       category: t().cat_session,
       slash: {
         name: "rename",
       },
-      onSelect: (dialog) => {
+      run: () => {
         dialog.replace(() => <DialogSessionRename session={route.sessionID} />)
       },
     },
     {
       title: t().cmd_session_timeline,
       value: "session.timeline",
-      keybind: "session_timeline",
       category: t().cat_session,
       slash: {
         name: "timeline",
       },
-      onSelect: (dialog) => {
+      run: () => {
         dialog.replace(() => (
           <DialogTimeline
             onMove={(messageID) => {
@@ -474,12 +465,11 @@ export function Session() {
     {
       title: t().cmd_session_fork,
       value: "session.fork",
-      keybind: "session_fork",
       category: t().cat_session,
       slash: {
         name: "fork",
       },
-      onSelect: (dialog) => {
+      run: () => {
         dialog.replace(() => (
           <DialogForkFromTimeline
             onMove={(messageID) => {
@@ -497,13 +487,12 @@ export function Session() {
     {
       title: t().cmd_session_compact,
       value: "session.compact",
-      keybind: "session_compact",
       category: t().cat_session,
       slash: {
         name: "compact",
         aliases: ["summarize"],
       },
-      onSelect: (dialog) => {
+      run: () => {
         const selectedModel = local.model.current()
         if (!selectedModel) {
           toast.show({
@@ -524,13 +513,12 @@ export function Session() {
     {
       title: t().cmd_session_unshare,
       value: "session.unshare",
-      keybind: "session_unshare",
       category: t().cat_session,
       enabled: !!session()?.share?.url,
       slash: {
         name: "unshare",
       },
-      onSelect: async (dialog) => {
+      run: async () => {
         await sdk.client.session
           .unshare({
             sessionID: route.sessionID,
@@ -548,12 +536,11 @@ export function Session() {
     {
       title: t().cmd_session_undo,
       value: "session.undo",
-      keybind: "messages_undo",
       category: t().cat_session,
       slash: {
         name: "undo",
       },
-      onSelect: async (dialog) => {
+      run: async () => {
         const status = sync.data.session_status?.[route.sessionID]
         if (status?.type !== "idle") await sdk.client.session.abort({ sessionID: route.sessionID }).catch(() => {})
         const revert = session()?.revert?.messageID
@@ -586,13 +573,12 @@ export function Session() {
     {
       title: t().cmd_session_redo,
       value: "session.redo",
-      keybind: "messages_redo",
       category: t().cat_session,
       enabled: !!session()?.revert?.messageID,
       slash: {
         name: "redo",
       },
-      onSelect: (dialog) => {
+      run: () => {
         dialog.clear()
         const messageID = session()?.revert?.messageID
         if (!messageID) return
@@ -613,9 +599,8 @@ export function Session() {
     {
       title: t().cmd_session_sidebar(sidebarVisible()),
       value: "session.sidebar.toggle",
-      keybind: "sidebar_toggle",
       category: t().cat_session,
-      onSelect: (dialog) => {
+      run: () => {
         batch(() => {
           const isVisible = sidebarVisible()
           setSidebar(() => (isVisible ? "hide" : "auto"))
@@ -628,7 +613,7 @@ export function Session() {
       title: t().cmd_session_bottombar(bottombarVisible()),
       value: "session.bottombar.toggle",
       category: t().cat_session,
-      onSelect: (dialog) => {
+      onSelect: (dialog: DialogContext) => {
         setBottombar((prev) => (prev === "show" ? "hide" : "show"))
         dialog.clear()
       },
@@ -636,9 +621,8 @@ export function Session() {
     {
       title: t().cmd_session_conceal(conceal()),
       value: "session.toggle.conceal",
-      keybind: "messages_toggle_conceal",
       category: t().cat_session,
-      onSelect: (dialog) => {
+      run: () => {
         setConceal((prev) => !prev)
         dialog.clear()
       },
@@ -651,7 +635,7 @@ export function Session() {
         name: "timestamps",
         aliases: ["toggle-timestamps"],
       },
-      onSelect: (dialog) => {
+      run: () => {
         setTimestamps((prev) => (prev === "show" ? "hide" : "show"))
         dialog.clear()
       },
@@ -659,13 +643,12 @@ export function Session() {
     {
       title: t().cmd_session_thinking(showThinking()),
       value: "session.toggle.thinking",
-      keybind: "display_thinking",
       category: t().cat_session,
       slash: {
         name: "thinking",
         aliases: ["toggle-thinking"],
       },
-      onSelect: (dialog) => {
+      run: () => {
         setShowThinking((prev) => !prev)
         dialog.clear()
       },
@@ -673,9 +656,8 @@ export function Session() {
     {
       title: t().cmd_session_details(showDetails()),
       value: "session.toggle.actions",
-      keybind: "tool_details",
       category: t().cat_session,
-      onSelect: (dialog) => {
+      run: () => {
         setShowDetails((prev) => !prev)
         dialog.clear()
       },
@@ -683,9 +665,8 @@ export function Session() {
     {
       title: t().cmd_session_scrollbar,
       value: "session.toggle.scrollbar",
-      keybind: "scrollbar_toggle",
       category: t().cat_session,
-      onSelect: (dialog) => {
+      run: () => {
         setShowScrollbar((prev) => !prev)
         dialog.clear()
       },
@@ -694,7 +675,7 @@ export function Session() {
       title: t().cmd_session_generic(showGenericToolOutput()),
       value: "session.toggle.generic_tool_output",
       category: t().cat_session,
-      onSelect: (dialog) => {
+      run: () => {
         setShowGenericToolOutput((prev) => !prev)
         dialog.clear()
       },
@@ -702,10 +683,9 @@ export function Session() {
     {
       title: t().cmd_session_page_up,
       value: "session.page.up",
-      keybind: "messages_page_up",
       category: t().cat_session,
       hidden: true,
-      onSelect: (dialog) => {
+      run: () => {
         scroll.scrollBy(-scroll.height / 2)
         dialog.clear()
       },
@@ -713,10 +693,9 @@ export function Session() {
     {
       title: t().cmd_session_page_down,
       value: "session.page.down",
-      keybind: "messages_page_down",
       category: t().cat_session,
       hidden: true,
-      onSelect: (dialog) => {
+      run: () => {
         scroll.scrollBy(scroll.height / 2)
         dialog.clear()
       },
@@ -724,10 +703,9 @@ export function Session() {
     {
       title: t().cmd_session_line_up,
       value: "session.line.up",
-      keybind: "messages_line_up",
       category: t().cat_session,
-      disabled: true,
-      onSelect: (dialog) => {
+      enabled: false,
+      run: () => {
         scroll.scrollBy(-1)
         dialog.clear()
       },
@@ -735,10 +713,9 @@ export function Session() {
     {
       title: t().cmd_session_line_down,
       value: "session.line.down",
-      keybind: "messages_line_down",
       category: t().cat_session,
-      disabled: true,
-      onSelect: (dialog) => {
+      enabled: false,
+      run: () => {
         scroll.scrollBy(1)
         dialog.clear()
       },
@@ -746,10 +723,9 @@ export function Session() {
     {
       title: t().cmd_session_half_up,
       value: "session.half.page.up",
-      keybind: "messages_half_page_up",
       category: t().cat_session,
       hidden: true,
-      onSelect: (dialog) => {
+      run: () => {
         scroll.scrollBy(-scroll.height / 4)
         dialog.clear()
       },
@@ -757,10 +733,9 @@ export function Session() {
     {
       title: t().cmd_session_half_down,
       value: "session.half.page.down",
-      keybind: "messages_half_page_down",
       category: t().cat_session,
       hidden: true,
-      onSelect: (dialog) => {
+      run: () => {
         scroll.scrollBy(scroll.height / 4)
         dialog.clear()
       },
@@ -768,10 +743,9 @@ export function Session() {
     {
       title: t().cmd_session_first,
       value: "session.first",
-      keybind: "messages_first",
       category: t().cat_session,
       hidden: true,
-      onSelect: (dialog) => {
+      run: () => {
         scroll.scrollTo(0)
         dialog.clear()
       },
@@ -779,10 +753,9 @@ export function Session() {
     {
       title: t().cmd_session_last,
       value: "session.last",
-      keybind: "messages_last",
       category: t().cat_session,
       hidden: true,
-      onSelect: (dialog) => {
+      run: () => {
         scroll.scrollTo(scroll.scrollHeight)
         dialog.clear()
       },
@@ -790,10 +763,9 @@ export function Session() {
     {
       title: t().cmd_session_last_user,
       value: "session.messages_last_user",
-      keybind: "messages_last_user",
       category: t().cat_session,
       hidden: true,
-      onSelect: () => {
+      run: () => {
         const messages = sync.data.message[route.sessionID]
         if (!messages || !messages.length) return
 
@@ -822,25 +794,22 @@ export function Session() {
     {
       title: t().cmd_session_next,
       value: "session.message.next",
-      keybind: "messages_next",
       category: t().cat_session,
       hidden: true,
-      onSelect: (dialog) => scrollToMessage("next", dialog),
+      run: () => scrollToMessage("next", dialog),
     },
     {
       title: t().cmd_session_prev,
       value: "session.message.previous",
-      keybind: "messages_previous",
       category: t().cat_session,
       hidden: true,
-      onSelect: (dialog) => scrollToMessage("prev", dialog),
+      run: () => scrollToMessage("prev", dialog),
     },
     {
       title: t().cmd_session_copy_last,
       value: "messages.copy",
-      keybind: "messages_copy",
       category: t().cat_session,
-      onSelect: (dialog) => {
+      run: () => {
         const revertID = session()?.revert?.messageID
         const lastAssistantMessage = messages().findLast(
           (msg) => msg.role === "assistant" && (!revertID || msg.id < revertID),
@@ -885,7 +854,7 @@ export function Session() {
       slash: {
         name: "copy",
       },
-      onSelect: async (dialog) => {
+      run: async () => {
         try {
           const sessionData = session()
           if (!sessionData) return
@@ -911,12 +880,11 @@ export function Session() {
     {
       title: t().cmd_session_export,
       value: "session.export",
-      keybind: "session_export",
       category: t().cat_session,
       slash: {
         name: "export",
       },
-      onSelect: async (dialog) => {
+      run: async () => {
         try {
           const sessionData = session()
           if (!sessionData) return
@@ -973,10 +941,9 @@ export function Session() {
     {
       title: t().cmd_session_child,
       value: "session.child.first",
-      keybind: "session_child_first",
       category: t().cat_session,
       hidden: true,
-      onSelect: (dialog) => {
+      run: () => {
         moveFirstChild()
         dialog.clear()
       },
@@ -984,11 +951,10 @@ export function Session() {
     {
       title: t().cmd_session_parent,
       value: "session.parent",
-      keybind: "session_parent",
       category: t().cat_session,
       hidden: true,
       enabled: !!session()?.parentID,
-      onSelect: childSessionHandler((dialog) => {
+      run: childSessionHandler(() => {
         const parentID = session()?.parentID
         if (parentID) {
           navigate({
@@ -1002,11 +968,10 @@ export function Session() {
     {
       title: t().cmd_session_next_child,
       value: "session.child.next",
-      keybind: "session_child_cycle",
       category: t().cat_session,
       hidden: true,
       enabled: !!session()?.parentID,
-      onSelect: childSessionHandler((dialog) => {
+      run: childSessionHandler(() => {
         moveChild(1)
         dialog.clear()
       }),
@@ -1014,16 +979,35 @@ export function Session() {
     {
       title: t().cmd_session_prev_child,
       value: "session.child.previous",
-      keybind: "session_child_cycle_reverse",
       category: t().cat_session,
       hidden: true,
       enabled: !!session()?.parentID,
-      onSelect: childSessionHandler((dialog) => {
+      run: childSessionHandler(() => {
         moveChild(-1)
         dialog.clear()
       }),
     },
   ])
+
+  const sessionCommands = createMemo(() =>
+    sessionCommandList().map((command) => ({
+      namespace: "palette",
+      name: command.value,
+      desc: "description" in command ? command.description : undefined,
+      slashName: "slash" in command ? command.slash?.name : undefined,
+      slashAliases: "slash" in command ? command.slash?.aliases : undefined,
+      ...command,
+    })),
+  )
+
+  useBindings(() => ({
+    commands: sessionCommands(),
+  }))
+
+  useBindings(() => ({
+    enabled: command.matcher,
+    bindings: sections.session,
+  }))
 
   const revertInfo = createMemo(() => session()?.revert)
   const revertMessageID = createMemo(() => revertInfo()?.messageID)
@@ -1096,7 +1080,8 @@ export function Session() {
                   <Switch>
                     <Match when={message.id === revert()?.messageID}>
                       {(function () {
-                        const command = useCommandDialog()
+                        const command = useCommandPalette()
+                        const redoShortcut = useCommandShortcut("session.redo")
                         const [hover, setHover] = createSignal(false)
                         const dialog = useDialog()
 
@@ -1107,7 +1092,7 @@ export function Session() {
                             t().session_redo_confirm_msg,
                           )
                           if (confirmed) {
-                            command.trigger("session.redo")
+                            command.run("session.redo")
                           }
                         }
 
@@ -1129,7 +1114,9 @@ export function Session() {
                               backgroundColor={hover() ? theme.backgroundElement : theme.backgroundPanel}
                             >
                               <text fg={theme.textMuted}>{t().session_msg_reverted(revert()!.reverted.length)}</text>
-                              <text fg={theme.textMuted}>{t().session_redo_hint(keybind.print("messages_redo"))}</text>
+                              <text fg={theme.textMuted}>
+                                <span style={{ fg: theme.text }}>{redoShortcut()}</span>{t().session_redo_hint("")}
+                              </text>
                               <Show when={revert()!.diffFiles?.length}>
                                 <box marginTop={1}>
                                   <For each={revert()!.diffFiles}>
@@ -1387,7 +1374,7 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
     return props.message.time.completed - user.time.created
   })
 
-  const keybind = useKeybind()
+  const childShortcut = useCommandShortcut("session.child.first")
 
   return (
     <>
@@ -1409,7 +1396,7 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
       <Show when={props.parts.some((x) => x.type === "tool" && x.tool === "task")}>
         <box paddingTop={1} paddingLeft={3}>
           <text fg={theme.text}>
-            {keybind.print("session_child_first")}
+            {childShortcut()}
             <span style={{ fg: theme.textMuted }}> {t().session_view_subagents}</span>
           </text>
         </box>

@@ -3,9 +3,9 @@ import { useTheme } from "../context/theme"
 import { useDialog, type DialogContext } from "./dialog"
 import { createStore } from "solid-js/store"
 import { For } from "solid-js"
-import { useKeyboard } from "@opentui/solid"
 import { Locale } from "@/util/locale"
 import { useI18n } from "@tui/context/i18n"
+import { useBindings } from "../keymap"
 
 export type DialogConfirmProps = {
   title: string
@@ -25,19 +25,30 @@ export function DialogConfirm(props: DialogConfirmProps) {
     active: "confirm" as "confirm" | "cancel",
   })
 
-  useKeyboard((evt) => {
-    if (evt.name === "return") {
-      evt.preventDefault()
-      evt.stopPropagation()
-      if (store.active === "confirm") props.onConfirm?.()
-      if (store.active === "cancel") props.onCancel?.()
-      dialog.clear()
-    }
-
-    if (evt.name === "left" || evt.name === "right") {
-      setStore("active", store.active === "confirm" ? "cancel" : "confirm")
-    }
-  })
+  useBindings(() => ({
+    bindings: [
+      {
+        key: "return",
+        cmd: () => {
+          if (store.active === "confirm") props.onConfirm?.()
+          if (store.active === "cancel") props.onCancel?.()
+          dialog.clear()
+        },
+      },
+      {
+        key: "left",
+        cmd: () => {
+          setStore("active", store.active === "confirm" ? "cancel" : "confirm")
+        },
+      },
+      {
+        key: "right",
+        cmd: () => {
+          setStore("active", store.active === "confirm" ? "cancel" : "confirm")
+        },
+      },
+    ],
+  }))
   return (
     <box paddingLeft={2} paddingRight={2} gap={1}>
       <box flexDirection="row" justifyContent="space-between">
@@ -58,7 +69,7 @@ export function DialogConfirm(props: DialogConfirmProps) {
               paddingLeft={1}
               paddingRight={1}
               backgroundColor={key === store.active ? theme.primary : undefined}
-              onMouseUp={(_evt) => {
+              onMouseUp={() => {
                 if (key === "confirm") props.onConfirm?.()
                 if (key === "cancel") props.onCancel?.()
                 dialog.clear()

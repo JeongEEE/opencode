@@ -1,8 +1,8 @@
 import { TextAttributes } from "@opentui/core"
 import { useTheme } from "../context/theme"
 import { useDialog, type DialogContext } from "./dialog"
-import { useKeyboard } from "@opentui/solid"
 import { useI18n } from "../context/i18n"
+import { useBindings } from "../keymap"
 
 export type DialogAlertProps = {
   title: string
@@ -15,14 +15,17 @@ export function DialogAlert(props: DialogAlertProps) {
   const { theme } = useTheme()
   const { t } = useI18n()
 
-  useKeyboard((evt) => {
-    if (evt.name === "return") {
-      evt.preventDefault()
-      evt.stopPropagation()
-      props.onConfirm?.()
-      dialog.clear()
-    }
-  })
+  useBindings(() => ({
+    bindings: [
+      {
+        key: "return",
+        cmd: () => {
+          props.onConfirm?.()
+          dialog.clear()
+        },
+      },
+    ],
+  }))
   return (
     <box paddingLeft={2} paddingRight={2} gap={1}>
       <box flexDirection="row" justifyContent="space-between">
