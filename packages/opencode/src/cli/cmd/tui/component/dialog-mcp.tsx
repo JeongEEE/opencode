@@ -49,7 +49,7 @@ export function DialogMcp() {
 
   const actions = createMemo(() => [
     {
-      command: "dialog.action.toggle",
+      command: "dialog.mcp.toggle",
       title: t().hint_toggle,
       onTrigger: async (option: DialogSelectOption<string>) => {
         // Prevent toggling while an operation is already in progress

@@ -14,6 +14,7 @@ import { LANGUAGE_EXTENSIONS } from "@/lsp/language"
 import { Locale } from "@/util/locale"
 import { Global } from "@opencode-ai/core/global"
 import { ShellID } from "@/tool/shell/id"
+import { webSearchProviderLabel } from "@/tool/websearch"
 import { useDialog } from "../../ui/dialog"
 import { getScrollAcceleration } from "../../util/scroll"
 import { useTuiConfig } from "../../context/tui-config"
@@ -341,7 +342,7 @@ export function PermissionPrompt(props: { request: PermissionRequest }) {
               const query = typeof data.query === "string" ? data.query : ""
               return {
                 icon: "◈",
-                title: `Exa Web Search "${query}"`,
+                title: `${webSearchProviderLabel(data.provider)} "${query}"`,
                 body: (
                   <Show when={query}>
                     <box paddingLeft={1}>
@@ -466,7 +467,6 @@ function RejectPrompt(props: { onConfirm: (message: string) => void; onCancel: (
   const { theme } = useTheme()
   const { t } = useI18n()
   const tuiConfig = useTuiConfig()
-  const keymapConfig = tuiConfig.keymap
   const dimensions = useTerminalDimensions()
   const narrow = createMemo(() => dimensions().width < 80)
   const dialog = useDialog()
@@ -474,16 +474,23 @@ function RejectPrompt(props: { onConfirm: (message: string) => void; onCancel: (
     enabled: dialog.stack.length === 0,
     commands: [
       {
-        name: "permission.reject.cancel",
+        name: "app.exit",
+        title: "Cancel permission rejection",
+        category: "Permission",
         run() {
           props.onCancel()
         },
       },
     ],
     bindings: [
-      { key: "escape", cmd: () => props.onCancel() },
-      ...keymapConfig.pick("permission", ["permission.reject.cancel"]),
-      { key: "return", cmd: () => props.onConfirm(input.plainText) },
+      { key: "escape", desc: "Cancel permission rejection", group: "Permission", cmd: () => props.onCancel() },
+      ...tuiConfig.keybinds.get("app.exit"),
+      {
+        key: "return",
+        desc: "Confirm permission rejection",
+        group: "Permission",
+        cmd: () => props.onConfirm(input.plainText),
+      },
     ],
   }))
 
@@ -550,7 +557,6 @@ function Prompt<const T extends Record<string, string>>(props: {
   const { theme } = useTheme()
   const { t } = useI18n()
   const tuiConfig = useTuiConfig()
-  const keymapConfig = tuiConfig.keymap
   const dimensions = useTerminalDimensions()
   const keys = Object.keys(props.options) as (keyof T)[]
   const [store, setStore] = createStore({
@@ -565,7 +571,9 @@ function Prompt<const T extends Record<string, string>>(props: {
     enabled: dialog.stack.length === 0,
     commands: [
       {
-        name: "permission.prompt.escape",
+        name: "app.exit",
+        title: "Reject permission",
+        category: "Permission",
         run() {
           if (!props.escapeKey) return
           props.onSelect(props.escapeKey)
@@ -573,6 +581,8 @@ function Prompt<const T extends Record<string, string>>(props: {
       },
       {
         name: "permission.prompt.fullscreen",
+        title: "Toggle permission fullscreen",
+        category: "Permission",
         run() {
           if (!props.fullscreen) return
           setStore("expanded", (v) => !v)
@@ -582,6 +592,8 @@ function Prompt<const T extends Record<string, string>>(props: {
     bindings: [
       {
         key: "left",
+        desc: "Previous permission option",
+        group: "Permission",
         cmd: () => {
           const idx = keys.indexOf(store.selected)
           const next = keys[(idx - 1 + keys.length) % keys.length]
@@ -590,6 +602,8 @@ function Prompt<const T extends Record<string, string>>(props: {
       },
       {
         key: "h",
+        desc: "Previous permission option",
+        group: "Permission",
         cmd: () => {
           const idx = keys.indexOf(store.selected)
           const next = keys[(idx - 1 + keys.length) % keys.length]
@@ -598,6 +612,8 @@ function Prompt<const T extends Record<string, string>>(props: {
       },
       {
         key: "right",
+        desc: "Next permission option",
+        group: "Permission",
         cmd: () => {
           const idx = keys.indexOf(store.selected)
           const next = keys[(idx + 1) % keys.length]
@@ -606,16 +622,32 @@ function Prompt<const T extends Record<string, string>>(props: {
       },
       {
         key: "l",
+        desc: "Next permission option",
+        group: "Permission",
         cmd: () => {
           const idx = keys.indexOf(store.selected)
           const next = keys[(idx + 1) % keys.length]
           setStore("selected", next)
         },
       },
-      { key: "return", cmd: () => props.onSelect(store.selected) },
-      ...(props.escapeKey ? [{ key: "escape", cmd: () => props.onSelect(props.escapeKey!) }] : []),
-      ...(props.escapeKey ? keymapConfig.pick("permission", ["permission.prompt.escape"]) : []),
-      ...(props.fullscreen ? keymapConfig.pick("permission", ["permission.prompt.fullscreen"]) : []),
+      {
+        key: "return",
+        desc: "Select permission option",
+        group: "Permission",
+        cmd: () => props.onSelect(store.selected),
+      },
+      ...(props.escapeKey
+        ? [
+            {
+              key: "escape",
+              desc: "Reject permission",
+              group: "Permission",
+              cmd: () => props.onSelect(props.escapeKey!),
+            },
+          ]
+        : []),
+      ...(props.escapeKey ? tuiConfig.keybinds.get("app.exit") : []),
+      ...(props.fullscreen ? tuiConfig.keybinds.get("permission.prompt.fullscreen") : []),
     ],
   }))
 
