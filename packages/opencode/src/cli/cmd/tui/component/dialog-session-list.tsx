@@ -30,7 +30,7 @@ export function DialogSessionList() {
   const toast = useToast()
   const [toDelete, setToDelete] = createSignal<string>()
   const [search, setSearch] = createDebouncedSignal("", 150)
-  const deleteHint = useCommandShortcut("dialog.action.delete")
+  const deleteHint = useCommandShortcut("session.delete")
 
   const [searchResults, { refetch }] = createResource(
     () => ({ query: search(), filter: sync.session.query() }),
@@ -109,6 +109,7 @@ export function DialogSessionList() {
             dialog,
             sdk,
             sync,
+            project,
             toast,
             onSelect: (selection) => {
               void warp(selection)
@@ -120,15 +121,29 @@ export function DialogSessionList() {
     ))
   }
 
+  function orderByRecency(sessionsList: NonNullable<ReturnType<typeof sessions>>) {
+    return sessionsList
+      .filter((x) => x.parentID === undefined)
+      .toSorted((a, b) => b.time.updated - a.time.updated)
+      .map((x) => x.id)
+  }
+
+  const [browseOrder] = createSignal<string[]>(orderByRecency(sync.data.session))
+
   const options = createMemo(() => {
     const today = new Date().toDateString()
-    return sessions()
-      .filter((x) => x.parentID === undefined)
-      .toSorted((a, b) => {
-        const updatedDay = new Date(b.time.updated).setHours(0, 0, 0, 0) - new Date(a.time.updated).setHours(0, 0, 0, 0)
-        if (updatedDay !== 0) return updatedDay
-        return b.time.created - a.time.created
-      })
+    const sessionMap = new Map(
+      sessions()
+        .filter((x) => x.parentID === undefined)
+        .map((x) => [x.id, x]),
+    )
+
+    const searchResult = searchResults()
+    const displayOrder = searchResult ? orderByRecency(searchResult) : browseOrder()
+
+    return displayOrder
+      .map((id) => sessionMap.get(id))
+      .filter((x) => x !== undefined)
       .map((x) => {
         const workspace = x.workspaceID ? project.workspace.get(x.workspaceID) : undefined
 
@@ -156,7 +171,7 @@ export function DialogSessionList() {
         }
         const isDeleting = toDelete() === x.id
         const status = sync.data.session_status?.[x.id]
-        const isWorking = status?.type === "busy"
+        const isWorking = status?.type === "busy" || status?.type === "retry"
         return {
           title: isDeleting ? t().stash_confirm_delete(deleteHint()) : x.title,
           bg: isDeleting ? theme.error : undefined,
@@ -191,7 +206,7 @@ export function DialogSessionList() {
       }}
       actions={[
         {
-          command: "dialog.action.delete",
+          command: "session.delete",
           title: t().session_list_delete,
           onTrigger: async (option) => {
             if (toDelete() === option.value) {
@@ -239,7 +254,7 @@ export function DialogSessionList() {
           },
         },
         {
-          command: "dialog.action.rename",
+          command: "session.rename",
           title: t().session_list_rename,
           onTrigger: async (option) => {
             dialog.replace(() => <DialogSessionRename session={option.value} />)
