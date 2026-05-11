@@ -1,4 +1,5 @@
-import type { TuiPlugin, TuiPluginApi, TuiPluginModule } from "@opencode-ai/plugin/tui"
+import type { TuiPlugin, TuiPluginApi } from "@opencode-ai/plugin/tui"
+import type { InternalTuiPlugin } from "../../plugin/internal"
 import { createMemo, createSignal, Match, Show, Switch } from "solid-js"
 import { Global } from "@opencode-ai/core/global"
 import path from "path"
@@ -113,7 +114,7 @@ const tui: TuiPlugin = async (api) => {
   })
 }
 
-const plugin: TuiPluginModule & { id: string } = {
+const plugin: InternalTuiPlugin = {
   id,
   tui,
 }

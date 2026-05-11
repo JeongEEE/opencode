@@ -1,4 +1,5 @@
-import type { TuiPlugin, TuiPluginApi, TuiPluginModule } from "@opencode-ai/plugin/tui"
+import type { TuiPlugin, TuiPluginApi } from "@opencode-ai/plugin/tui"
+import type { InternalTuiPlugin } from "../../plugin/internal"
 import { createMemo, Show } from "solid-js"
 import { Tips } from "./tips-view"
 import { useI18n } from "@tui/context/i18n"
@@ -21,7 +22,7 @@ function View(props: { api: TuiPluginApi; hidden: boolean; show: boolean; connec
         },
       },
     ],
-    bindings: props.api.tuiConfig.keymap.sections.home_tips,
+    bindings: props.api.tuiConfig.keybinds.get("tips.toggle"),
   }))
 
   return (
@@ -52,7 +53,7 @@ const tui: TuiPlugin = async (api) => {
   })
 }
 
-const plugin: TuiPluginModule & { id: string } = {
+const plugin: InternalTuiPlugin = {
   id,
   tui,
 }

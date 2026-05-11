@@ -29,6 +29,8 @@ export function DialogConfirm(props: DialogConfirmProps) {
     bindings: [
       {
         key: "return",
+        desc: "Confirm dialog selection",
+        group: "Dialog",
         cmd: () => {
           if (store.active === "confirm") props.onConfirm?.()
           if (store.active === "cancel") props.onCancel?.()
@@ -37,12 +39,16 @@ export function DialogConfirm(props: DialogConfirmProps) {
       },
       {
         key: "left",
+        desc: "Previous dialog option",
+        group: "Dialog",
         cmd: () => {
           setStore("active", store.active === "confirm" ? "cancel" : "confirm")
         },
       },
       {
         key: "right",
+        desc: "Next dialog option",
+        group: "Dialog",
         cmd: () => {
           setStore("active", store.active === "confirm" ? "cancel" : "confirm")
         },

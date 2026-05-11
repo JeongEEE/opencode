@@ -9,14 +9,12 @@ import { DialogVariant } from "./dialog-variant"
 import { useI18n } from "@tui/context/i18n"
 import * as fuzzysort from "fuzzysort"
 import { useConnected } from "./use-connected"
-import { useTuiConfig } from "../context/tui-config"
 
 export function DialogModel(props: { providerID?: string }) {
   const local = useLocal()
   const sync = useSync()
   const dialog = useDialog()
   const { t } = useI18n()
-  const tuiConfig = useTuiConfig()
   const [query, setQuery] = createSignal("")
 
   const connected = useConnected()
@@ -169,7 +167,6 @@ export function DialogModel(props: { providerID?: string }) {
           },
         },
       ]}
-      bindings={tuiConfig.keymap.sections.model}
       onFilter={setQuery}
       flat={true}
       skipFilter={true}
