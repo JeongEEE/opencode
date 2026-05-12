@@ -18,6 +18,7 @@ export const en = {
   model_favorite: "Favorite",
   model_favorites: "Favorites",
   model_recent: "Recent",
+  model_pinned: "Pinned",
   model_free: "Free",
   model_today: "Today",
 
@@ -539,6 +540,10 @@ export const en = {
     "Use {highlight}/review{/highlight} to review uncommitted changes, branches, or PRs",
     "Run {highlight}/help{/highlight} or {highlight}Ctrl+X H{/highlight} to show the help dialog",
     "Use {highlight}/rename{/highlight} to rename the current session",
+    "Press {highlight}Ctrl+F{/highlight} in the session list to pin a session so it stays at the top",
+    "Pinned and recent sessions are bound to {highlight}Ctrl+X 1{/highlight} through {highlight}Ctrl+X 9{/highlight} for one-press switching",
+    "Press {highlight}Ctrl+X ]{/highlight} / {highlight}Ctrl+X [{/highlight} to cycle through recently visited sessions",
+    "Press {highlight}Ctrl+H{/highlight} in the session list to show or hide a session in the Recent group",
   ],
 }
 

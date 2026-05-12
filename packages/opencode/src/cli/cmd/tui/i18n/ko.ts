@@ -20,6 +20,7 @@ export const ko: Translations = {
   model_favorite: "즐겨찾기",
   model_favorites: "즐겨찾기",
   model_recent: "최근",
+  model_pinned: "고정됨",
   model_free: "무료",
   model_today: "오늘",
 
@@ -539,5 +540,9 @@ export const ko: Translations = {
     "{highlight}/review{/highlight}로 커밋되지 않은 변경사항, 브랜치, PR을 검토할 수 있습니다",
     "{highlight}/help{/highlight} 또는 {highlight}Ctrl+X H{/highlight}를 실행하면 도움말 다이얼로그가 표시됩니다",
     "{highlight}/rename{/highlight}으로 현재 세션의 이름을 변경할 수 있습니다",
+    "세션 목록에서 {highlight}Ctrl+F{/highlight}를 눌러 세션을 고정하면 항상 상단에 표시됩니다",
+    "고정 및 최근 세션은 {highlight}Ctrl+X 1{/highlight}~{highlight}Ctrl+X 9{/highlight}로 바로 전환할 수 있습니다",
+    "{highlight}Ctrl+X ]{/highlight} / {highlight}Ctrl+X [{/highlight}로 최근 방문한 세션을 순환할 수 있습니다",
+    "세션 목록에서 {highlight}Ctrl+H{/highlight}를 눌러 세션의 최근 그룹 표시 여부를 전환할 수 있습니다",
   ],
 }

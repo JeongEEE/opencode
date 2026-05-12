@@ -210,8 +210,8 @@ export function DialogSessionList() {
       .filter((x) => x !== undefined)
 
     return [
-      ...pinned.map((id) => buildOption(id, "Pinned")).filter((x) => x !== undefined),
-      ...recent.map((id) => buildOption(id, "Recent")).filter((x) => x !== undefined),
+      ...pinned.map((id) => buildOption(id, t().model_pinned)).filter((x) => x !== undefined),
+      ...recent.map((id) => buildOption(id, t().model_recent)).filter((x) => x !== undefined),
       ...remaining,
     ]
   })
