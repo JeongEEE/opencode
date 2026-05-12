@@ -10,6 +10,7 @@ import {
   onMount,
   Show,
   Switch,
+  untrack,
   useContext,
 } from "solid-js"
 import { Dynamic } from "solid-js/web"
@@ -247,7 +248,7 @@ export function Session() {
   createEffect(() => {
     const sessionID = route.sessionID
     void (async () => {
-      const previousWorkspace = project.workspace.current()
+      const previousWorkspace = untrack(() => project.workspace.current())
       const result = await sdk.client.session.get({ sessionID }, { throwOnError: true })
       if (!result.data) {
         toast.show({
@@ -760,7 +761,7 @@ export function Session() {
       title: t().cmd_session_line_up,
       value: "session.line.up",
       category: t().cat_session,
-      enabled: false,
+      hidden: true,
       run: () => {
         scroll.scrollBy(-1)
         dialog.clear()
@@ -770,7 +771,7 @@ export function Session() {
       title: t().cmd_session_line_down,
       value: "session.line.down",
       category: t().cat_session,
-      enabled: false,
+      hidden: true,
       run: () => {
         scroll.scrollBy(1)
         dialog.clear()
@@ -2013,11 +2014,11 @@ function WebFetch(props: ToolProps<typeof WebFetchTool>) {
 
 function WebSearch(props: ToolProps<typeof WebSearchTool>) {
   const { t } = useI18n()
-  const metadata = props.metadata as { numResults?: number; provider?: unknown }
+  const metadata = () => props.metadata as { numResults?: number; provider?: unknown }
   return (
     <InlineTool icon="◈" pending={t().tool_searching_web} complete={props.input.query} part={props.part}>
-      {webSearchProviderLabel(metadata.provider)} "{props.input.query}"{" "}
-      <Show when={metadata.numResults}>({metadata.numResults} results)</Show>
+      {webSearchProviderLabel(metadata().provider)} "{props.input.query}"{" "}
+      <Show when={metadata().numResults}>({metadata().numResults} results)</Show>
     </InlineTool>
   )
 }
