@@ -1853,7 +1853,6 @@ function BlockTool(props: {
 function Shell(props: ToolProps<typeof ShellTool>) {
   const { theme } = useTheme()
   const { t } = useI18n()
-  const sync = useSync()
   const pathFormatter = usePathFormatter()
   const isRunning = createMemo(() => props.part.state.status === "running")
   const output = createMemo(() => stripAnsi(props.metadata.output?.trim() ?? ""))
@@ -1935,7 +1934,7 @@ function Write(props: ToolProps<typeof WriteTool>) {
       </Match>
       <Match when={true}>
         <InlineTool icon="←" pending={t().tool_preparing_write} complete={props.input.filePath} part={props.part}>
-          Write {pathFormatter.format(props.input.filePath!)}
+          Write {pathFormatter.format(props.input.filePath)}
         </InlineTool>
       </Match>
     </Switch>
@@ -2142,7 +2141,7 @@ function Edit(props: ToolProps<typeof EditTool>) {
       </Match>
       <Match when={true}>
         <InlineTool icon="←" pending={t().tool_preparing_edit} complete={props.input.filePath} part={props.part}>
-          Edit {pathFormatter.format(props.input.filePath!)} {input({ replaceAll: props.input.replaceAll })}
+          Edit {pathFormatter.format(props.input.filePath)} {input({ replaceAll: props.input.replaceAll })}
         </InlineTool>
       </Match>
     </Switch>
