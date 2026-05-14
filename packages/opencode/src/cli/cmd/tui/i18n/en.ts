@@ -438,40 +438,115 @@ export const en = {
   toast_export_success: (filename: string): string => `Session exported to ${filename}`,
 
   // tips
-  tip_theme: (n: number): string => `Use {highlight}/themes{/highlight} or {highlight}Ctrl+X T{/highlight} to switch between ${n} built-in themes`,
+  tip_theme: (n: number, s?: string): string =>
+    s
+      ? `Use {highlight}/themes{/highlight} or {highlight}${s}{/highlight} to switch between ${n} built-in themes`
+      : `Use {highlight}/themes{/highlight} to switch between ${n} built-in themes`,
+  tip_agent_cycle: (s: string): string | undefined =>
+    s ? `Press {highlight}${s}{/highlight} to cycle between Build and Plan agents` : undefined,
+  tip_input_paste: (s: string): string | undefined =>
+    s ? `Press {highlight}${s}{/highlight} to paste images from your clipboard into the prompt` : undefined,
+  tip_editor_open: (s: string): string =>
+    s
+      ? `Use {highlight}/editor{/highlight} or {highlight}${s}{/highlight} to compose messages in your external editor`
+      : `Use {highlight}/editor{/highlight} to compose messages in your external editor`,
+  tip_model_list: (s: string): string =>
+    s
+      ? `Use {highlight}/models{/highlight} or {highlight}${s}{/highlight} to see and switch between available AI models`
+      : `Use {highlight}/models{/highlight} to see and switch between available AI models`,
+  tip_session_new: (s: string): string =>
+    s
+      ? `Use {highlight}/new{/highlight} or {highlight}${s}{/highlight} to start a fresh conversation session`
+      : `Use {highlight}/new{/highlight} to start a fresh conversation session`,
+  tip_session_list: (s: string): string =>
+    s
+      ? `Use {highlight}/sessions{/highlight} or {highlight}${s}{/highlight} to list and continue previous conversations`
+      : `Use {highlight}/sessions{/highlight} to list and continue previous conversations`,
+  tip_session_export: (s: string): string =>
+    s
+      ? `Use {highlight}/export{/highlight} or {highlight}${s}{/highlight} to save the conversation as Markdown`
+      : `Use {highlight}/export{/highlight} to save the conversation as Markdown`,
+  tip_messages_copy: (s: string): string | undefined =>
+    s ? `Press {highlight}${s}{/highlight} to copy the assistant's last message to clipboard` : undefined,
+  tip_command_list: (s: string): string | undefined =>
+    s ? `Press {highlight}${s}{/highlight} to see all available actions and commands` : undefined,
+  tip_leader_key: (s: string): string =>
+    s
+      ? `The leader key is {highlight}${s}{/highlight}; combine with other keys for quick actions`
+      : `Use {highlight}Ctrl+X{/highlight} as the leader key; combine with other keys for quick actions`,
+  tip_model_cycle_recent: (s: string): string | undefined =>
+    s ? `Press {highlight}${s}{/highlight} to quickly switch between recently used models` : undefined,
+  tip_session_sidebar: (s: string): string | undefined =>
+    s ? `Press {highlight}${s}{/highlight} in a session to show or hide the sidebar panel` : undefined,
+  tip_messages_page: (up: string, down: string): string | undefined =>
+    up && down
+      ? `Use {highlight}${up}{/highlight}/{highlight}${down}{/highlight} to navigate through conversation history`
+      : undefined,
+  tip_messages_first: (s: string): string | undefined =>
+    s ? `Press {highlight}${s}{/highlight} to jump to the beginning of the conversation` : undefined,
+  tip_messages_last: (s: string): string | undefined =>
+    s ? `Press {highlight}${s}{/highlight} to jump to the most recent message` : undefined,
+  tip_input_newline: (s: string): string | undefined =>
+    s ? `Press {highlight}${s}{/highlight} to add newlines in your prompt` : undefined,
+  tip_input_clear: (s: string): string | undefined =>
+    s ? `Press {highlight}${s}{/highlight} when typing to clear the input field` : undefined,
+  tip_session_interrupt: (s: string): string | undefined =>
+    s ? `Press {highlight}${s}{/highlight} to stop the AI mid-response` : undefined,
+  tip_session_nav: (parent: string, first: string, prev: string, next: string): string | undefined => {
+    const items = [parent, first, prev, next].filter(Boolean)
+    return items.length
+      ? `Use ${items.map((v) => `{highlight}${v}{/highlight}`).join(" / ")} to move between parent and child sessions`
+      : undefined
+  },
+  tip_timeline: (s: string): string =>
+    s
+      ? `Use {highlight}/timeline{/highlight} or {highlight}${s}{/highlight} to jump to specific messages`
+      : `Use {highlight}/timeline{/highlight} to jump to specific messages`,
+  tip_toggle_conceal: (s: string): string | undefined =>
+    s ? `Press {highlight}${s}{/highlight} to toggle code block visibility in messages` : undefined,
+  tip_status: (s: string): string =>
+    s
+      ? `Use {highlight}/status{/highlight} or {highlight}${s}{/highlight} to see system status info`
+      : `Use {highlight}/status{/highlight} to see system status info`,
+  tip_toggle_username: (s: string): string =>
+    s
+      ? `Toggle username display in chat via the command palette ({highlight}${s}{/highlight})`
+      : "Toggle username display in chat via the command palette",
+  tip_help: (s: string): string =>
+    s
+      ? `Use {highlight}/help{/highlight} or {highlight}${s}{/highlight} to show the help dialog`
+      : `Use {highlight}/help{/highlight} to show the help dialog`,
+  tip_session_pin: (s: string): string | undefined =>
+    s
+      ? `Press {highlight}${s}{/highlight} in the session list to pin a session so it stays at the top`
+      : undefined,
+  tip_session_quickswitch: (s1: string, s9: string): string | undefined =>
+    s1 && s9
+      ? `Pinned and recent sessions are bound to {highlight}${s1}{/highlight} through {highlight}${s9}{/highlight} for one-press switching`
+      : undefined,
+  tip_session_cycle: (fwd: string, rev: string): string | undefined =>
+    fwd && rev
+      ? `Press {highlight}${fwd}{/highlight} / {highlight}${rev}{/highlight} to cycle through recently visited sessions`
+      : undefined,
+  tip_session_toggle_recent: (s: string): string | undefined =>
+    s
+      ? `Press {highlight}${s}{/highlight} in the session list to show or hide a session in the Recent group`
+      : undefined,
   tip_suspend_term: "Press {highlight}Ctrl+Z{/highlight} to suspend the terminal and return to your shell",
   tip_undo_prompt: "Press {highlight}Ctrl+Z{/highlight} to undo changes in your prompt",
   tips_list: [
     "Type {highlight}@{/highlight} followed by a filename to fuzzy search and attach files",
     "Start a message with {highlight}!{/highlight} to run shell commands directly (e.g., {highlight}!ls -la{/highlight})",
-    "Press {highlight}Tab{/highlight} to cycle between Build and Plan agents",
+
     "Use {highlight}/undo{/highlight} to revert the last message and file changes",
     "Use {highlight}/redo{/highlight} to restore previously undone messages and file changes",
     "Run {highlight}/share{/highlight} to create a public link to your conversation at opencode.ai",
     "Drag and drop images or PDFs into the terminal to add them as context",
-    "Press {highlight}Ctrl+V{/highlight} to paste images from your clipboard into the prompt",
-    "Press {highlight}Ctrl+X E{/highlight} or {highlight}/editor{/highlight} to compose messages in your external editor",
     "Run {highlight}/init{/highlight} to auto-generate project rules based on your codebase",
-    "Run {highlight}/models{/highlight} or {highlight}Ctrl+X M{/highlight} to see and switch between available AI models",
-    "Press {highlight}Ctrl+X N{/highlight} or {highlight}/new{/highlight} to start a fresh conversation session",
-    "Use {highlight}/sessions{/highlight} or {highlight}Ctrl+X L{/highlight} to list and continue previous conversations",
     "Run {highlight}/compact{/highlight} to summarize long sessions near context limits",
-    "Press {highlight}Ctrl+X X{/highlight} or {highlight}/export{/highlight} to save the conversation as Markdown",
-    "Press {highlight}Ctrl+X Y{/highlight} to copy the assistant's last message to clipboard",
-    "Press {highlight}Ctrl+P{/highlight} to see all available actions and commands",
     "Run {highlight}/connect{/highlight} to add API keys for 75+ supported LLM providers",
-    "The leader key is {highlight}Ctrl+X{/highlight}; combine with other keys for quick actions",
-    "Press {highlight}F2{/highlight} to quickly switch between recently used models",
-    "Press {highlight}Ctrl+X B{/highlight} to show/hide the sidebar panel",
-    "Use {highlight}PageUp{/highlight}/{highlight}PageDown{/highlight} to navigate through conversation history",
-    "Press {highlight}Ctrl+G{/highlight} or {highlight}Home{/highlight} to jump to the beginning of the conversation",
-    "Press {highlight}Ctrl+Alt+G{/highlight} or {highlight}End{/highlight} to jump to the most recent message",
-    "Press {highlight}Shift+Enter{/highlight} or {highlight}Ctrl+J{/highlight} to add newlines in your prompt",
-    "Press {highlight}Ctrl+C{/highlight} when typing to clear the input field",
-    "Press {highlight}Escape{/highlight} to stop the AI mid-response",
     "Switch to {highlight}Plan{/highlight} agent to get suggestions without making actual changes",
     "Use {highlight}@agent-name{/highlight} in prompts to invoke specialized subagents",
-    "Press {highlight}Ctrl+X Right/Left{/highlight} to cycle through parent and child sessions",
     "Create {highlight}opencode.json{/highlight} for server settings and {highlight}tui.json{/highlight} for TUI settings",
     "Place TUI settings in {highlight}~/.config/opencode/tui.json{/highlight} for global config",
     "Add {highlight}$schema{/highlight} to your config for autocomplete in your editor",

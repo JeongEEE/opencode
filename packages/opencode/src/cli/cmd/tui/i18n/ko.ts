@@ -438,40 +438,114 @@ export const ko: Translations = {
   toast_export_success: (filename) => `세션이 ${filename}으로 내보내졌습니다`,
 
   // tips
-  tip_theme: (n) => `{highlight}/themes{/highlight} 또는 {highlight}Ctrl+X T{/highlight}로 ${n}개의 기본 테마를 변경할 수 있습니다`,
+  tip_theme: (n, s) =>
+    s
+      ? `{highlight}/themes{/highlight} 또는 {highlight}${s}{/highlight}로 ${n}개의 기본 테마를 변경할 수 있습니다`
+      : `{highlight}/themes{/highlight}로 ${n}개의 기본 테마를 변경할 수 있습니다`,
+  tip_agent_cycle: (s) =>
+    s ? `{highlight}${s}{/highlight}를 눌러 Build와 Plan 에이전트를 전환할 수 있습니다` : undefined,
+  tip_input_paste: (s) =>
+    s ? `{highlight}${s}{/highlight}를 눌러 클립보드의 이미지를 프롬프트에 붙여넣을 수 있습니다` : undefined,
+  tip_editor_open: (s) =>
+    s
+      ? `{highlight}/editor{/highlight} 또는 {highlight}${s}{/highlight}로 외부 에디터에서 메시지를 작성할 수 있습니다`
+      : `{highlight}/editor{/highlight}로 외부 에디터에서 메시지를 작성할 수 있습니다`,
+  tip_model_list: (s) =>
+    s
+      ? `{highlight}/models{/highlight} 또는 {highlight}${s}{/highlight}로 사용 가능한 AI 모델을 확인하고 변경할 수 있습니다`
+      : `{highlight}/models{/highlight}로 사용 가능한 AI 모델을 확인하고 변경할 수 있습니다`,
+  tip_session_new: (s) =>
+    s
+      ? `{highlight}/new{/highlight} 또는 {highlight}${s}{/highlight}로 새 대화 세션을 시작할 수 있습니다`
+      : `{highlight}/new{/highlight}로 새 대화 세션을 시작할 수 있습니다`,
+  tip_session_list: (s) =>
+    s
+      ? `{highlight}/sessions{/highlight} 또는 {highlight}${s}{/highlight}로 이전 대화 목록을 보고 이어갈 수 있습니다`
+      : `{highlight}/sessions{/highlight}로 이전 대화 목록을 보고 이어갈 수 있습니다`,
+  tip_session_export: (s) =>
+    s
+      ? `{highlight}/export{/highlight} 또는 {highlight}${s}{/highlight}로 대화를 Markdown으로 저장할 수 있습니다`
+      : `{highlight}/export{/highlight}로 대화를 Markdown으로 저장할 수 있습니다`,
+  tip_messages_copy: (s) =>
+    s ? `{highlight}${s}{/highlight}를 눌러 어시스턴트의 마지막 메시지를 클립보드에 복사할 수 있습니다` : undefined,
+  tip_command_list: (s) =>
+    s ? `{highlight}${s}{/highlight}를 눌러 모든 사용 가능한 작업과 커맨드를 확인할 수 있습니다` : undefined,
+  tip_leader_key: (s) =>
+    s
+      ? `리더 키는 {highlight}${s}{/highlight}입니다; 다른 키와 조합하여 빠른 동작을 수행하세요`
+      : `{highlight}Ctrl+X{/highlight}를 리더 키로 사용합니다; 다른 키와 조합하여 빠른 동작을 수행하세요`,
+  tip_model_cycle_recent: (s) =>
+    s ? `{highlight}${s}{/highlight}를 눌러 최근 사용한 모델로 빠르게 변경할 수 있습니다` : undefined,
+  tip_session_sidebar: (s) =>
+    s ? `세션에서 {highlight}${s}{/highlight}를 눌러 사이드바 패널을 표시하거나 숨길 수 있습니다` : undefined,
+  tip_messages_page: (up, down) =>
+    up && down
+      ? `{highlight}${up}{/highlight}/{highlight}${down}{/highlight}으로 대화 내역을 탐색할 수 있습니다`
+      : undefined,
+  tip_messages_first: (s) =>
+    s ? `{highlight}${s}{/highlight}를 눌러 대화의 처음으로 이동할 수 있습니다` : undefined,
+  tip_messages_last: (s) =>
+    s ? `{highlight}${s}{/highlight}를 눌러 가장 최근 메시지로 이동할 수 있습니다` : undefined,
+  tip_input_newline: (s) =>
+    s ? `{highlight}${s}{/highlight}를 눌러 프롬프트에 줄바꿈을 추가할 수 있습니다` : undefined,
+  tip_input_clear: (s) =>
+    s ? `입력 중 {highlight}${s}{/highlight}를 눌러 입력창을 지울 수 있습니다` : undefined,
+  tip_session_interrupt: (s) =>
+    s ? `{highlight}${s}{/highlight}를 눌러 AI 응답을 중간에 중단할 수 있습니다` : undefined,
+  tip_session_nav: (parent, first, prev, next) => {
+    const items = [parent, first, prev, next].filter(Boolean)
+    return items.length
+      ? `${items.map((v) => `{highlight}${v}{/highlight}`).join(" / ")}로 부모 세션과 자식 세션을 탐색할 수 있습니다`
+      : undefined
+  },
+  tip_timeline: (s) =>
+    s
+      ? `{highlight}/timeline{/highlight} 또는 {highlight}${s}{/highlight}로 특정 메시지로 이동할 수 있습니다`
+      : `{highlight}/timeline{/highlight}으로 특정 메시지로 이동할 수 있습니다`,
+  tip_toggle_conceal: (s) =>
+    s ? `{highlight}${s}{/highlight}를 눌러 메시지의 코드 블록 가시성을 전환할 수 있습니다` : undefined,
+  tip_status: (s) =>
+    s
+      ? `{highlight}/status{/highlight} 또는 {highlight}${s}{/highlight}로 시스템 상태 정보를 볼 수 있습니다`
+      : `{highlight}/status{/highlight}로 시스템 상태 정보를 볼 수 있습니다`,
+  tip_toggle_username: (s) =>
+    s
+      ? `커맨드 팔레트({highlight}${s}{/highlight})로 채팅의 사용자명 표시를 전환할 수 있습니다`
+      : "커맨드 팔레트로 채팅의 사용자명 표시를 전환할 수 있습니다",
+  tip_help: (s) =>
+    s
+      ? `{highlight}/help{/highlight} 또는 {highlight}${s}{/highlight}를 실행하면 도움말 다이얼로그가 표시됩니다`
+      : `{highlight}/help{/highlight}를 실행하면 도움말 다이얼로그가 표시됩니다`,
+  tip_session_pin: (s) =>
+    s
+      ? `세션 목록에서 {highlight}${s}{/highlight}를 눌러 세션을 고정하면 항상 상단에 표시됩니다`
+      : undefined,
+  tip_session_quickswitch: (s1, s9) =>
+    s1 && s9
+      ? `고정 및 최근 세션은 {highlight}${s1}{/highlight}~{highlight}${s9}{/highlight}로 바로 전환할 수 있습니다`
+      : undefined,
+  tip_session_cycle: (fwd, rev) =>
+    fwd && rev
+      ? `{highlight}${fwd}{/highlight} / {highlight}${rev}{/highlight}를 눌러 최근 방문한 세션을 순환할 수 있습니다`
+      : undefined,
+  tip_session_toggle_recent: (s) =>
+    s
+      ? `세션 목록에서 {highlight}${s}{/highlight}를 눌러 세션의 최근 그룹 표시 여부를 전환할 수 있습니다`
+      : undefined,
   tip_suspend_term: "{highlight}Ctrl+Z{/highlight}를 눌러 터미널을 일시 중단하고 쉘로 돌아갈 수 있습니다",
   tip_undo_prompt: "{highlight}Ctrl+Z{/highlight}를 눌러 프롬프트 입력을 되돌릴 수 있습니다",
   tips_list: [
     "{highlight}@{/highlight} 뒤에 파일명을 입력하면 퍼지 검색으로 파일을 첨부할 수 있습니다",
     "메시지를 {highlight}!{/highlight}로 시작하면 셸 명령을 직접 실행합니다 (예: {highlight}!ls -la{/highlight})",
-    "{highlight}Tab{/highlight}을 눌러 Build와 Plan 에이전트를 전환할 수 있습니다",
     "{highlight}/undo{/highlight}로 마지막 메시지와 파일 변경을 되돌릴 수 있습니다",
     "{highlight}/redo{/highlight}로 취소된 메시지와 파일 변경을 복원할 수 있습니다",
     "{highlight}/share{/highlight}를 실행하면 opencode.ai에 대화 공개 링크를 생성합니다",
     "이미지나 PDF를 터미널에 드래그 앤 드롭하여 컨텍스트로 추가할 수 있습니다",
-    "{highlight}Ctrl+V{/highlight}를 눌러 클립보드의 이미지를 프롬프트에 붙여넣을 수 있습니다",
-    "{highlight}Ctrl+X E{/highlight} 또는 {highlight}/editor{/highlight}로 외부 에디터에서 메시지를 작성할 수 있습니다",
     "{highlight}/init{/highlight}을 실행하면 코드베이스 기반으로 프로젝트 규칙을 자동 생성합니다",
-    "{highlight}/models{/highlight} 또는 {highlight}Ctrl+X M{/highlight}으로 사용 가능한 AI 모델을 확인하고 변경할 수 있습니다",
-    "{highlight}Ctrl+X N{/highlight} 또는 {highlight}/new{/highlight}로 새 대화 세션을 시작할 수 있습니다",
-    "{highlight}/sessions{/highlight} 또는 {highlight}Ctrl+X L{/highlight}로 이전 대화 목록을 보고 이어갈 수 있습니다",
     "{highlight}/compact{/highlight}를 실행하면 컨텍스트 한도에 가까운 긴 세션을 요약합니다",
-    "{highlight}Ctrl+X X{/highlight} 또는 {highlight}/export{/highlight}로 대화를 Markdown으로 저장할 수 있습니다",
-    "{highlight}Ctrl+X Y{/highlight}를 눌러 어시스턴트의 마지막 메시지를 클립보드에 복사할 수 있습니다",
-    "{highlight}Ctrl+P{/highlight}를 눌러 모든 사용 가능한 작업과 커맨드를 확인할 수 있습니다",
     "{highlight}/connect{/highlight}를 실행하여 75개 이상의 LLM 공급자 API 키를 추가할 수 있습니다",
-    "리더 키는 {highlight}Ctrl+X{/highlight}입니다. 다른 키와 조합하여 빠른 작업을 수행할 수 있습니다",
-    "{highlight}F2{/highlight}를 눌러 최근 사용한 모델로 빠르게 변경할 수 있습니다",
-    "{highlight}Ctrl+X B{/highlight}를 눌러 사이드바 패널을 표시하거나 숨길 수 있습니다",
-    "{highlight}PageUp{/highlight}/{highlight}PageDown{/highlight}으로 대화 내역을 탐색할 수 있습니다",
-    "{highlight}Ctrl+G{/highlight} 또는 {highlight}Home{/highlight}을 눌러 대화의 처음으로 이동할 수 있습니다",
-    "{highlight}Ctrl+Alt+G{/highlight} 또는 {highlight}End{/highlight}를 눌러 가장 최근 메시지로 이동할 수 있습니다",
-    "{highlight}Shift+Enter{/highlight} 또는 {highlight}Ctrl+J{/highlight}로 프롬프트에 줄바꿈을 추가할 수 있습니다",
-    "입력 중 {highlight}Ctrl+C{/highlight}를 눌러 입력창을 지울 수 있습니다",
-    "{highlight}Escape{/highlight}를 눌러 AI 응답을 중간에 중단할 수 있습니다",
     "{highlight}Plan{/highlight} 에이전트로 전환하면 실제 변경 없이 제안만 받을 수 있습니다",
     "프롬프트에서 {highlight}@agent-name{/highlight}을 사용하여 특수 서브에이전트를 호출할 수 있습니다",
-    "{highlight}Ctrl+X Right/Left{/highlight}로 부모 세션과 자식 세션을 순환할 수 있습니다",
     "서버 설정은 {highlight}opencode.json{/highlight}에, TUI 설정은 {highlight}tui.json{/highlight}에 저장합니다",
     "전역 TUI 설정은 {highlight}~/.config/opencode/tui.json{/highlight}에 저장합니다",
     "설정 파일에 {highlight}$schema{/highlight}를 추가하면 에디터 자동완성이 활성화됩니다",
@@ -529,20 +603,11 @@ export const ko: Translations = {
     "{highlight}external_directory{/highlight} 권한은 프로젝트 외부 파일을 보호합니다",
     "{highlight}pcode debug config{/highlight}를 실행하여 설정을 디버깅할 수 있습니다",
     "{highlight}--print-logs{/highlight} 플래그로 stderr에서 상세 로그를 볼 수 있습니다",
-    "{highlight}Ctrl+X G{/highlight} 또는 {highlight}/timeline{/highlight}으로 특정 메시지로 이동할 수 있습니다",
-    "{highlight}Ctrl+X H{/highlight}를 눌러 메시지의 코드 블록 가시성을 전환할 수 있습니다",
-    "{highlight}Ctrl+X S{/highlight} 또는 {highlight}/status{/highlight}로 시스템 상태 정보를 볼 수 있습니다",
     "{highlight}tui.json{/highlight}에서 {highlight}scroll_acceleration{/highlight}을 활성화하면 macOS 스타일 스크롤이 됩니다",
-    "커맨드 팔레트({highlight}Ctrl+P{/highlight})로 채팅의 사용자명 표시를 전환할 수 있습니다",
     "{highlight}docker run -it --rm ghcr.io/anomalyco/opencode{/highlight}으로 컨테이너 환경에서 실행할 수 있습니다",
     "{highlight}/connect{/highlight}로 Opencode Zen의 큐레이션된 테스트 모델을 사용할 수 있습니다",
     "팀 공유를 위해 프로젝트의 {highlight}AGENTS.md{/highlight} 파일을 Git에 커밋하세요",
     "{highlight}/review{/highlight}로 커밋되지 않은 변경사항, 브랜치, PR을 검토할 수 있습니다",
-    "{highlight}/help{/highlight} 또는 {highlight}Ctrl+X H{/highlight}를 실행하면 도움말 다이얼로그가 표시됩니다",
     "{highlight}/rename{/highlight}으로 현재 세션의 이름을 변경할 수 있습니다",
-    "세션 목록에서 {highlight}Ctrl+F{/highlight}를 눌러 세션을 고정하면 항상 상단에 표시됩니다",
-    "고정 및 최근 세션은 {highlight}Ctrl+X 1{/highlight}~{highlight}Ctrl+X 9{/highlight}로 바로 전환할 수 있습니다",
-    "{highlight}Ctrl+X ]{/highlight} / {highlight}Ctrl+X [{/highlight}로 최근 방문한 세션을 순환할 수 있습니다",
-    "세션 목록에서 {highlight}Ctrl+H{/highlight}를 눌러 세션의 최근 그룹 표시 여부를 전환할 수 있습니다",
   ],
 }
