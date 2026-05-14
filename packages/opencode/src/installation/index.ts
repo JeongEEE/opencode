@@ -272,6 +272,14 @@ export const layer: Layer.Layer<Service, never, HttpClient.HttpClient | AppProce
               const tap = yield* run(["brew", "tap", "anomalyco/tap"], { env })
               if (tap.code !== 0) {
                 upgradeResult = tap
+                break
+              }
+              const repo = yield* text(["brew", "--repo", "anomalyco/tap"])
+              const dir = repo.trim()
+              if (dir) {
+                const pull = yield* run(["git", "pull", "--ff-only"], { cwd: dir, env })
+                if (pull.code !== 0) {
+                  upgradeResult = pull
                   break
                 }
               }
