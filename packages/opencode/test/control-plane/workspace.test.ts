@@ -8,8 +8,8 @@ import { NodeHttpServer } from "@effect/platform-node"
 import { Effect, Layer, Schema } from "effect"
 import { FetchHttpClient, HttpServer, HttpServerRequest, HttpServerResponse } from "effect/unstable/http"
 import { eq } from "drizzle-orm"
+import { AppFileSystem } from "@opencode-ai/core/filesystem"
 import * as Log from "@opencode-ai/core/util/log"
-import { Flag } from "@opencode-ai/core/flag/flag"
 import { GlobalBus, type GlobalEvent } from "@/bus/global"
 import { Database } from "@/storage/db"
 import { ProjectID } from "@/project/schema"
@@ -41,7 +41,6 @@ import { RuntimeFlags } from "@/effect/runtime-flags"
 
 void Log.init({ print: false })
 
-const originalWorkspacesFlag = Flag.OPENCODE_EXPERIMENTAL_WORKSPACES
 const originalEnv = {
   OPENCODE_AUTH_CONTENT: process.env.OPENCODE_AUTH_CONTENT,
   OPENCODE_EXPERIMENTAL_WORKSPACES: process.env.OPENCODE_EXPERIMENTAL_WORKSPACES,
@@ -59,6 +58,7 @@ const workspaceLayer = (experimentalWorkspaces: boolean) =>
     Layer.provide(Project.defaultLayer),
     Layer.provide(Vcs.defaultLayer),
     Layer.provide(FetchHttpClient.layer),
+    Layer.provide(AppFileSystem.defaultLayer),
     Layer.provide(RuntimeFlags.layer({ experimentalWorkspaces })),
     Layer.provide(InstanceStore.defaultLayer.pipe(Layer.provide(InstanceBootstrap.defaultLayer))),
   )
@@ -111,7 +111,6 @@ function restoreEnv() {
 
 beforeEach(() => {
   Database.close()
-  Flag.OPENCODE_EXPERIMENTAL_WORKSPACES = true
   restoreEnv()
   process.env.OPENCODE_EXPERIMENTAL_WORKSPACES = "true"
 })
@@ -119,7 +118,6 @@ beforeEach(() => {
 afterEach(async () => {
   mock.restore()
   await disposeAllInstances()
-  Flag.OPENCODE_EXPERIMENTAL_WORKSPACES = originalWorkspacesFlag
   restoreEnv()
   await resetDatabase()
 })
