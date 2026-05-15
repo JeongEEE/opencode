@@ -891,6 +891,13 @@ export type GlobalEvent = {
     | SyncEventSessionNextCompactionEnded
     | EventPluginRefreshed
     | SyncEventSessionNextToolProgress
+    | EventMessageUpdated
+    | EventMessageRemoved
+    | EventMessagePartUpdated
+    | EventMessagePartRemoved
+    | EventSessionCreated
+    | EventSessionUpdated
+    | EventSessionDeleted
 }
 
 /**
