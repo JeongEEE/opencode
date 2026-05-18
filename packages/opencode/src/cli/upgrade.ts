@@ -1,4 +1,3 @@
-import { Bus } from "@/bus"
 import { Config } from "@/config/config"
 import { AppRuntime } from "@/effect/app-runtime"
 import { Flag } from "@opencode-ai/core/flag/flag"
@@ -14,7 +13,13 @@ export async function upgrade() {
   if (!latest) return
 
   if (Flag.OPENCODE_ALWAYS_NOTIFY_UPDATE) {
-    await Bus.publish(Installation.Event.UpdateAvailable, { version: latest })
+    GlobalBus.emit("event", {
+      directory: "global",
+      payload: {
+        type: Installation.Event.UpdateAvailable.type,
+        properties: { version: latest },
+      },
+    })
     return
   }
 
@@ -23,18 +28,26 @@ export async function upgrade() {
   const kind = Installation.getReleaseType(InstallationVersion, latest)
 
   if (config.autoupdate === "notify" || kind !== "patch") {
-    await Bus.publish(Installation.Event.UpdateAvailable, { version: latest })
+    GlobalBus.emit("event", {
+      directory: "global",
+      payload: {
+        type: Installation.Event.UpdateAvailable.type,
+        properties: { version: latest },
+      },
+    })
     return
   }
 
   if (method === "unknown") return
   await Installation.upgrade(method, latest)
-    .then(() => {
-      void Bus.publish(Installation.Event.Updated, { version: latest })
+    .then(() =>
       GlobalBus.emit("event", {
         directory: "global",
-        payload: { type: Installation.Event.Updated.type, properties: { version: latest } },
-      })
-    })
+        payload: {
+          type: Installation.Event.Updated.type,
+          properties: { version: latest },
+        },
+      }),
+    )
     .catch(() => {})
 }
