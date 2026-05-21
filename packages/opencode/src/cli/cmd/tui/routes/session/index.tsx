@@ -53,7 +53,6 @@ import type { SkillTool } from "@/tool/skill"
 import { useRenderer, useTerminalDimensions, type JSX } from "@opentui/solid"
 import { useSDK } from "@tui/context/sdk"
 import { useEditorContext } from "@tui/context/editor"
-import type { DialogContext } from "@tui/ui/dialog"
 import { useDialog } from "../../ui/dialog"
 import { TodoItem } from "../../component/todo-item"
 import { DialogMessage } from "./dialog-message"
@@ -1581,7 +1580,7 @@ function CollapsedReasoningText(props: { title: string | null; duration: number 
   return (
     <text fg={theme.warning} wrapMode="none">
       <span style={{ fg: theme.warning, italic: true }}>
-        {props.title ? "+ Thought · " + props.title + " · " + duration() : "+ Thought · " + duration()}
+        {props.title ? "+ Thought: " + props.title + " · " + duration() : "+ Thought: " + duration()}
       </span>
     </text>
   )
