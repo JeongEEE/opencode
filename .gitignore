@@ -34,3 +34,5 @@ tsconfig.tsbuildinfo
 .omc/
 .sisyphus/
 .omo/
+# CodeGraph local index
+.codegraph/
