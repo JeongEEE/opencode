@@ -100,6 +100,34 @@ describe("Config", () => {
     }),
   )
 
+  it.effect("migrates v1 command configuration", () =>
+    Effect.sync(() => {
+      expect(
+        ConfigMigrateV1.migrate({
+          command: {
+            review: {
+              template: "Review changes",
+              description: "Review code",
+              agent: "reviewer",
+              model: "anthropic/claude",
+              variant: "high",
+              subtask: true,
+            },
+          },
+        }).commands,
+      ).toEqual({
+        review: {
+          template: "Review changes",
+          description: "Review code",
+          agent: "reviewer",
+          model: "anthropic/claude",
+          variant: "high",
+          subtask: true,
+        },
+      })
+    }),
+  )
+
   it.live("returns an empty configuration when directory files do not exist", () =>
     Effect.acquireRelease(
       Effect.promise(() => tmpdir()),
@@ -216,6 +244,7 @@ describe("Config", () => {
               JSON.stringify({
                 shell: "/bin/bash",
                 model: "anthropic/claude",
+                default_agent: "reviewer",
                 autoupdate: "notify",
                 share: "disabled",
                 enterprise: { url: "https://share.example.com" },
@@ -300,6 +329,7 @@ describe("Config", () => {
             expect(documents).toHaveLength(1)
             expect(documents[0]?.info.shell).toBe("/bin/bash")
             expect(documents[0]?.info.model).toBe("anthropic/claude")
+            expect(documents[0]?.info.default_agent).toBe("reviewer")
             expect(documents[0]?.info.autoupdate).toBe("notify")
             expect(documents[0]?.info.share).toBe("disabled")
             expect(documents[0]?.info.enterprise).toEqual({ url: "https://share.example.com" })
@@ -399,6 +429,7 @@ describe("Config", () => {
               path.join(tmp.path, "opencode.json"),
               JSON.stringify({
                 shell: "/bin/zsh",
+                default_agent: "reviewer",
                 snapshot: false,
                 autoshare: true,
                 permission: {
@@ -459,6 +490,7 @@ describe("Config", () => {
             expect(documents).toHaveLength(1)
             expect(documents[0]?.info).toBeInstanceOf(Config.Info)
             expect(documents[0]?.info.shell).toBe("/bin/zsh")
+            expect(documents[0]?.info.default_agent).toBe("reviewer")
             expect(documents[0]?.info.snapshots).toBe(false)
             expect(documents[0]?.info.share).toBe("auto")
             expect(documents[0]?.info.permissions).toEqual([
