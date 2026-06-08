@@ -2,7 +2,7 @@ import type { TuiPlugin, TuiPluginApi } from "@opencode-ai/plugin/tui"
 import type { BuiltinTuiPlugin } from "../builtins"
 import { createMemo, Show } from "solid-js"
 import { Tips } from "./tips-view"
-import { useI18n } from "@tui/context/i18n"
+import { useI18n } from "../../context/i18n"
 import { useBindings } from "../../keymap"
 
 const id = "internal:home-tips"

@@ -1,5 +1,5 @@
 import { useTheme } from "../context/theme"
-import { useI18n } from "@tui/context/i18n"
+import { useI18n } from "../context/i18n"
 
 export function PluginRouteMissing(props: { id: string; onHome: () => void }) {
   const { theme } = useTheme()

@@ -4,7 +4,7 @@ import { useTerminalDimensions } from "@opentui/solid"
 import { fileURLToPath } from "url"
 import { DialogSelect, type DialogSelectOption } from "../../ui/dialog-select"
 import { Show, createEffect, createMemo, createSignal } from "solid-js"
-import { useI18n } from "@tui/context/i18n"
+import { useI18n } from "../../context/i18n"
 import { useBindings } from "../../keymap"
 
 const id = "internal:plugin-manager"

@@ -4,7 +4,7 @@ import { createMemo, createSignal } from "solid-js"
 import { Locale } from "../util/locale"
 import { useTheme } from "../context/theme"
 import { usePromptStash, type StashEntry } from "./prompt/stash"
-import { useI18n } from "@tui/context/i18n"
+import { useI18n } from "../context/i18n"
 import { useCommandShortcut } from "../keymap"
 
 function getRelativeTime(timestamp: number): string {

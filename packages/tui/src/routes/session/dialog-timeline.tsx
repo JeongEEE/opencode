@@ -6,7 +6,7 @@ import { Locale } from "../../util/locale"
 import { DialogMessage } from "./dialog-message"
 import { useDialog } from "../../ui/dialog"
 import type { PromptInfo } from "../../component/prompt/history"
-import { useI18n } from "@tui/context/i18n"
+import { useI18n } from "../../context/i18n"
 
 export function DialogTimeline(props: {
   sessionID: string
