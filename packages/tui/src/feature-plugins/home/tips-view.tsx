@@ -114,6 +114,8 @@ export function Tips(props: { api: TuiPluginApi; connected?: boolean }) {
       ti.tip_status(s.statusView()),
       ti.tip_toggle_username(s.commandList()),
       ti.tip_help(s.helpShow()),
+      ti.tip_session_pin(s.sessionPinToggle()),
+      ti.tip_session_quickswitch(s.sessionQuickSwitch1(), s.sessionQuickSwitch9()),
       process.platform === "win32" ? ti.tip_undo_prompt : ti.tip_suspend_term,
     ]
   }

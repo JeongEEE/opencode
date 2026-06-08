@@ -31,6 +31,7 @@ import type {
 } from "@opencode-ai/sdk/v2"
 import { createEffect, createMemo, createSignal, For, Match, Show, Switch } from "solid-js"
 import { collapseToolOutput } from "../../util/collapse-tool-output"
+import { useI18n } from "../../context/i18n"
 import { setPreLayoutSiblingMargin } from "../../util/layout"
 
 const id = "internal:session-v2-debug"
@@ -202,6 +203,7 @@ function UserMessage(props: { message: SessionMessageUser; index: number }) {
 }
 
 function ShellMessage(props: { message: SessionMessageShell }) {
+  const { t } = useI18n()
   const { theme } = useTheme()
   const dimensions = useTerminalDimensions()
   const output = createMemo(() => stripAnsi(props.message.output.trim()))
@@ -215,7 +217,7 @@ function ShellMessage(props: { message: SessionMessageShell }) {
   })
   return (
     <BlockTool
-      title="# Shell"
+      title={t().tool_shell_title}
       spinner={!props.message.time.completed}
       onClick={collapsed().overflow ? () => setExpanded((prev) => !prev) : undefined}
     >
@@ -525,6 +527,7 @@ type ToolProps = {
 }
 
 function GenericTool(props: ToolProps) {
+  const { t } = useI18n()
   const { theme } = useTheme()
   const dimensions = useTerminalDimensions()
   const output = createMemo(() => props.output?.trim() ?? "")
@@ -540,7 +543,7 @@ function GenericTool(props: ToolProps) {
     <Show
       when={output()}
       fallback={
-        <InlineTool icon="⚙" pending="Writing command..." complete={toolComplete(props.part)} part={props.part}>
+        <InlineTool icon="⚙" pending={t().tool_writing_cmd} complete={toolComplete(props.part)} part={props.part}>
           {props.part.name} {input(props.input)}
         </InlineTool>
       }
@@ -700,6 +703,7 @@ function BlockTool(props: {
 }
 
 function Bash(props: ToolProps) {
+  const { t } = useI18n()
   const { theme } = useTheme()
   const dimensions = useTerminalDimensions()
   const output = createMemo(() => stripAnsi((stringValue(props.metadata.output) ?? props.output ?? "").trim()))
@@ -732,7 +736,7 @@ function Bash(props: ToolProps) {
         </BlockTool>
       </Match>
       <Match when={true}>
-        <InlineTool icon="$" pending="Writing command..." complete={command()} part={props.part}>
+        <InlineTool icon="$" pending={t().tool_writing_cmd} complete={command()} part={props.part}>
           {command()}
         </InlineTool>
       </Match>
@@ -741,9 +745,10 @@ function Bash(props: ToolProps) {
 }
 
 function Glob(props: ToolProps) {
+  const { t } = useI18n()
   const normalizePath = usePathNormalizer()
   return (
-    <InlineTool icon="✱" pending="Finding files..." complete={toolComplete(props.part)} part={props.part}>
+    <InlineTool icon="✱" pending={t().tool_finding_files} complete={toolComplete(props.part)} part={props.part}>
       Glob "{stringValue(props.input.pattern) ?? pendingInput(props.part)}"{" "}
       <Show when={stringValue(props.input.path)}>in {normalizePath(stringValue(props.input.path))} </Show>
       <Show when={numberValue(props.metadata.count)}>
@@ -758,6 +763,7 @@ function Glob(props: ToolProps) {
 }
 
 function Read(props: ToolProps) {
+  const { t } = useI18n()
   const normalizePath = usePathNormalizer()
   const { theme } = useTheme()
   const loaded = createMemo(() =>
@@ -767,7 +773,7 @@ function Read(props: ToolProps) {
     <>
       <InlineTool
         icon="→"
-        pending="Reading file..."
+        pending={t().tool_reading_file}
         complete={stringValue(props.input.filePath) ?? pendingInput(props.part)}
         spinner={props.part.state.status === "running"}
         part={props.part}
@@ -789,9 +795,10 @@ function Read(props: ToolProps) {
 }
 
 function Grep(props: ToolProps) {
+  const { t } = useI18n()
   const normalizePath = usePathNormalizer()
   return (
-    <InlineTool icon="✱" pending="Searching content..." complete={toolComplete(props.part)} part={props.part}>
+    <InlineTool icon="✱" pending={t().tool_searching_content} complete={toolComplete(props.part)} part={props.part}>
       Grep "{stringValue(props.input.pattern) ?? pendingInput(props.part)}"{" "}
       <Show when={stringValue(props.input.path)}>in {normalizePath(stringValue(props.input.path))} </Show>
       <Show when={numberValue(props.metadata.matches)}>
@@ -806,17 +813,19 @@ function Grep(props: ToolProps) {
 }
 
 function WebFetch(props: ToolProps) {
+  const { t } = useI18n()
   return (
-    <InlineTool icon="%" pending="Fetching from the web..." complete={toolComplete(props.part)} part={props.part}>
+    <InlineTool icon="%" pending={t().tool_fetching_web} complete={toolComplete(props.part)} part={props.part}>
       WebFetch {stringValue(props.input.url) ?? pendingInput(props.part)}
     </InlineTool>
   )
 }
 
 function WebSearch(props: ToolProps) {
+  const { t } = useI18n()
   const label = createMemo(() => webSearchProviderLabel(props.metadata.provider))
   return (
-    <InlineTool icon="◈" pending="Searching web..." complete={toolComplete(props.part)} part={props.part}>
+    <InlineTool icon="◈" pending={t().tool_searching_web} complete={toolComplete(props.part)} part={props.part}>
       {label()} "{stringValue(props.input.query) ?? pendingInput(props.part)}"{" "}
       <Show when={numberValue(props.metadata.numResults)}>{(results) => <>({results()} results)</>}</Show>
     </InlineTool>
@@ -824,6 +833,7 @@ function WebSearch(props: ToolProps) {
 }
 
 function Write(props: ToolProps) {
+  const { t } = useI18n()
   const normalizePath = usePathNormalizer()
   const { theme, syntax } = useTheme()
   const filePath = createMemo(() => stringValue(props.input.filePath) ?? "")
@@ -845,7 +855,7 @@ function Write(props: ToolProps) {
         </BlockTool>
       </Match>
       <Match when={true}>
-        <InlineTool icon="←" pending="Preparing write..." complete={filePath()} part={props.part}>
+        <InlineTool icon="←" pending={t().tool_preparing_write} complete={filePath()} part={props.part}>
           Write {normalizePath(filePath())}
         </InlineTool>
       </Match>
@@ -854,6 +864,7 @@ function Write(props: ToolProps) {
 }
 
 function Edit(props: ToolProps) {
+  const { t } = useI18n()
   const normalizePath = usePathNormalizer()
   const { theme, syntax } = useTheme()
   const dimensions = useTerminalDimensions()
@@ -890,7 +901,7 @@ function Edit(props: ToolProps) {
         )}
       </Match>
       <Match when={true}>
-        <InlineTool icon="←" pending="Preparing edit..." complete={filePath()} part={props.part}>
+        <InlineTool icon="←" pending={t().tool_preparing_edit} complete={filePath()} part={props.part}>
           Edit {normalizePath(filePath())} {input({ replaceAll: props.input.replaceAll })}
         </InlineTool>
       </Match>
@@ -899,6 +910,7 @@ function Edit(props: ToolProps) {
 }
 
 function ApplyPatch(props: ToolProps) {
+  const { t } = useI18n()
   const normalizePath = usePathNormalizer()
   const { theme, syntax } = useTheme()
   const dimensions = useTerminalDimensions()
@@ -954,7 +966,7 @@ function ApplyPatch(props: ToolProps) {
         </For>
       </Match>
       <Match when={true}>
-        <InlineTool icon="%" pending="Preparing patch..." complete={false} part={props.part}>
+        <InlineTool icon="%" pending={t().tool_preparing_patch} complete={false} part={props.part}>
           Patch
         </InlineTool>
       </Match>
@@ -963,12 +975,13 @@ function ApplyPatch(props: ToolProps) {
 }
 
 function TodoWrite(props: ToolProps) {
+  const { t } = useI18n()
   const { theme } = useTheme()
   const todos = createMemo(() => arrayValue(props.input.todos).flatMap((item) => (isRecord(item) ? [item] : [])))
   return (
     <Switch>
       <Match when={todos().length > 0 && props.part.state.status === "completed"}>
-        <BlockTool title="# Todos" part={props.part}>
+        <BlockTool title={t().tool_todos_title} part={props.part}>
           <box>
             <For each={todos()}>
               {(todo) => (
@@ -981,7 +994,7 @@ function TodoWrite(props: ToolProps) {
         </BlockTool>
       </Match>
       <Match when={true}>
-        <InlineTool icon="⚙" pending="Updating todos..." complete={false} part={props.part}>
+        <InlineTool icon="⚙" pending={t().tool_updating_todos} complete={false} part={props.part}>
           Updating todos...
         </InlineTool>
       </Match>
@@ -990,6 +1003,7 @@ function TodoWrite(props: ToolProps) {
 }
 
 function Question(props: ToolProps) {
+  const { t } = useI18n()
   const { theme } = useTheme()
   const questions = createMemo(() =>
     arrayValue(props.input.questions).flatMap((item) => (isRecord(item) ? [item] : [])),
@@ -998,7 +1012,7 @@ function Question(props: ToolProps) {
   return (
     <Switch>
       <Match when={answers().length > 0}>
-        <BlockTool title="# Questions" part={props.part}>
+        <BlockTool title={t().tool_questions_title} part={props.part}>
           <box gap={1}>
             <For each={questions()}>
               {(question, index) => (
@@ -1012,7 +1026,7 @@ function Question(props: ToolProps) {
         </BlockTool>
       </Match>
       <Match when={true}>
-        <InlineTool icon="→" pending="Asking questions..." complete={questions().length} part={props.part}>
+        <InlineTool icon="→" pending={t().tool_asking_questions} complete={questions().length} part={props.part}>
           Asked {questions().length} question{questions().length === 1 ? "" : "s"}
         </InlineTool>
       </Match>
@@ -1021,14 +1035,16 @@ function Question(props: ToolProps) {
 }
 
 function Skill(props: ToolProps) {
+  const { t } = useI18n()
   return (
-    <InlineTool icon="→" pending="Loading skill..." complete={toolComplete(props.part)} part={props.part}>
+    <InlineTool icon="→" pending={t().tool_loading_skill} complete={toolComplete(props.part)} part={props.part}>
       Skill "{stringValue(props.input.name) ?? pendingInput(props.part)}"
     </InlineTool>
   )
 }
 
 function Task(props: ToolProps) {
+  const { t } = useI18n()
   const content = createMemo(() => {
     const description = stringValue(props.input.description)
     if (!description) return pendingInput(props.part)
@@ -1039,7 +1055,7 @@ function Task(props: ToolProps) {
       icon="│"
       spinner={props.part.state.status === "running"}
       complete={toolComplete(props.part)}
-      pending="Delegating..."
+      pending={t().tool_delegating}
       part={props.part}
     >
       {content()}
