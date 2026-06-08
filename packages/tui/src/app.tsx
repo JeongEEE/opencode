@@ -257,8 +257,8 @@ export const run = Effect.fn("Tui.run")(function* (input: TuiInput) {
                       <EpilogueProvider set={(value) => (epilogue.value = value)}>
                         <OpencodeKeymapProvider keymap={keymap}>
                           <ArgsProvider {...input.args}>
-                          <I18nProvider language={input.config.language}>
-                    <KVProvider>
+                            <KVProvider>
+                              <I18nProvider language={input.config.language}>
                               <ToastProvider>
                                 <RouteProvider
                                   initialRoute={
@@ -310,8 +310,8 @@ export const run = Effect.fn("Tui.run")(function* (input: TuiInput) {
                                   </TuiConfigProvider>
                                 </RouteProvider>
                               </ToastProvider>
+                              </I18nProvider>
                             </KVProvider>
-                  </I18nProvider>
                           </ArgsProvider>
                         </OpencodeKeymapProvider>
                       </EpilogueProvider>
