@@ -314,6 +314,7 @@ export const ko: Translations = {
   // org
   org_loading: "조직 로딩 중...",
   org_none: "조직 없음",
+  org_load_error: "조직을 불러오지 못했습니다",
   org_switched: (name) => `${name}으로 전환됨`,
 
   // stash
