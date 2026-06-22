@@ -313,6 +313,7 @@ export const en = {
   // org
   org_loading: "Loading orgs...",
   org_none: "No orgs found",
+  org_load_error: "Could not load orgs",
   org_switched: (name: string): string => `Switched to ${name}`,
 
   // stash
