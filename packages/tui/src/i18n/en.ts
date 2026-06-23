@@ -235,6 +235,7 @@ export const en = {
   // dialog-skill
   skill_title: "Skills",
   skill_search: "Search skills...",
+  skill_load_error: "Could not load skills",
 
   // dialog-go-upsell
   upsell_title: "Free limit reached",

@@ -236,6 +236,7 @@ export const ko: Translations = {
   // dialog-skill
   skill_title: "스킬",
   skill_search: "스킬 검색...",
+  skill_load_error: "스킬을 불러올 수 없습니다",
 
   // dialog-go-upsell
   upsell_title: "무료 한도 초과",
