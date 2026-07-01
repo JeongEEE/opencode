@@ -3,12 +3,12 @@ export * as Npm from "./npm"
 import path from "path"
 import npa from "npm-package-arg"
 import { Effect, Schema, Context, Layer, Option, FileSystem } from "effect"
-import { NodeFileSystem } from "@effect/platform-node"
 import { FSUtil } from "./fs-util"
 import { Global } from "./global"
 import { EffectFlock } from "./util/effect-flock"
 import { makeGlobalNode } from "./effect/app-node"
 import { filesystem } from "./effect/app-node-platform"
+import { LayerNode } from "./effect/layer-node"
 import { makeRuntime } from "./effect/runtime"
 import { NpmConfig } from "./npm-config"
 
@@ -81,7 +81,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null
 }
 
-export const layer = Layer.effect(
+const layer = Layer.effect(
   Service,
   Effect.gen(function* () {
     const afs = yield* FSUtil.Service
@@ -292,19 +292,13 @@ export const layer = Layer.effect(
   }),
 )
 
-export const defaultLayer = layer.pipe(
-  Layer.provide(EffectFlock.layer),
-  Layer.provide(FSUtil.layer),
-  Layer.provide(Global.layer),
-  Layer.provide(NodeFileSystem.layer),
-)
 export const node = makeGlobalNode({
   service: Service,
   layer: layer,
   deps: [FSUtil.node, Global.node, filesystem, EffectFlock.node],
 })
 
-const { runPromise } = makeRuntime(Service, defaultLayer)
+const { runPromise } = makeRuntime(Service, LayerNode.compile(node))
 
 export async function install(...args: Parameters<Interface["install"]>) {
   return runPromise((svc) => svc.install(...args))
