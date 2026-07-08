@@ -820,8 +820,8 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
             <DialogSelect
               title={t().cmd_language}
               options={[
-                { title: t().lang_en, value: "en", gutter: lang() === "en" ? <text>✓</text> : undefined },
-                { title: t().lang_ko, value: "ko", gutter: lang() === "ko" ? <text>✓</text> : undefined },
+                { title: t().lang_en, value: "en", gutter: lang() === "en" ? () => <text>✓</text> : undefined },
+                { title: t().lang_ko, value: "ko", gutter: lang() === "ko" ? () => <text>✓</text> : undefined },
               ]}
               onSelect={(opt) => {
                 setLanguage(opt.value)
