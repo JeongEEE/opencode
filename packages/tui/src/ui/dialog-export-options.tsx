@@ -4,6 +4,7 @@ import { useDialog, type DialogContext } from "./dialog"
 import { createStore } from "solid-js/store"
 import { onMount, Show } from "solid-js"
 import { useI18n } from "../context/i18n"
+import { useTuiConfig } from "../config"
 import { useBindings } from "../keymap"
 
 export type DialogExportOptionsProps = {
@@ -26,6 +27,7 @@ export function DialogExportOptions(props: DialogExportOptionsProps) {
   const dialog = useDialog()
   const { theme } = useTheme()
   const { t } = useI18n()
+  const tuiConfig = useTuiConfig()
   let textarea: TextareaRenderable
   const [store, setStore] = createStore({
     thinking: props.defaultThinking,
@@ -118,6 +120,7 @@ export function DialogExportOptions(props: DialogExportOptionsProps) {
           textColor={theme.text}
           focusedTextColor={theme.text}
           cursorColor={theme.text}
+          cursorStyle={tuiConfig.cursor}
         />
       </box>
       <box flexDirection="column">
