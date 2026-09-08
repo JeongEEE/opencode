@@ -8,7 +8,7 @@ export const ko: Translations = {
   provider_recommended: "(추천)",
   provider_popular: "인기",
   provider_other: "기타",
-  provider_waiting: "인증 대기 중...",
+  provider_waiting: "인증 대기 중…",
   provider_invalid_code: "잘못된 코드",
   provider_auth_code: "인증 코드",
   provider_copy: "복사",
@@ -69,8 +69,8 @@ export const ko: Translations = {
   question_multi_hint: " (해당되는 것 모두 선택)",
 
   // startup
-  startup_finishing: "시작 완료 중...",
-  startup_plugins: "플러그인 로딩 중...",
+  startup_finishing: "시작 완료 중…",
+  startup_plugins: "플러그인 로딩 중…",
 
   // toast / clipboard
   copied_clipboard: "클립보드에 복사됨",
@@ -79,7 +79,7 @@ export const ko: Translations = {
   // update
   update_available: "업데이트 가능",
   update_available_msg: (v) => `새 릴리스 v${v}가 있습니다. 지금 업데이트하시겠습니까?`,
-  update_updating: (v) => `v${v}로 업데이트 중...`,
+  update_updating: (v) => `v${v}로 업데이트 중…`,
   update_failed_title: "업데이트 실패",
   update_failed_msg: "업데이트에 실패했습니다",
   update_complete_title: "업데이트 완료",
@@ -235,7 +235,7 @@ export const ko: Translations = {
 
   // dialog-skill
   skill_title: "스킬",
-  skill_search: "스킬 검색...",
+  skill_search: "스킬 검색…",
   skill_load_error: "스킬을 불러올 수 없습니다",
 
   // dialog-go-upsell
@@ -249,8 +249,8 @@ export const ko: Translations = {
 
   // dialog-prompt
   prompt_placeholder: "텍스트 입력",
-  status_working: "처리 중...",
-  status_processing: "처리 중...",
+  status_working: "처리 중…",
+  status_processing: "처리 중…",
 
   // dialog-export
   export_title: "내보내기 옵션",
@@ -313,7 +313,7 @@ export const ko: Translations = {
   heap_snapshot: (files) => `힙 스냅샷이 저장되었습니다: ${files}`,
 
   // org
-  org_loading: "조직 로딩 중...",
+  org_loading: "조직 로딩 중…",
   org_none: "조직 없음",
   org_load_error: "조직을 불러오지 못했습니다",
   org_switched: (name) => `${name}으로 전환됨`,
@@ -332,11 +332,11 @@ export const ko: Translations = {
   // workspace
   workspace_new: "새 워크스페이스",
   workspace_creating_title: "워크스페이스 생성 중",
-  workspace_creating_type: (type) => `${type} 워크스페이스 생성 중...`,
+  workspace_creating_type: (type) => `${type} 워크스페이스 생성 중…`,
   workspace_remote_wait: "원격 환경에서는 시간이 걸릴 수 있습니다",
   workspace_worktree: "워크트리",
   workspace_worktree_desc: "로컬 git 워크트리 생성",
-  workspace_loading: "워크스페이스 불러오는 중...",
+  workspace_loading: "워크스페이스 불러오는 중…",
   workspace_loading_desc: "사용 가능한 워크스페이스 어댑터를 가져오는 중",
   workspace_failed: "워크스페이스 생성에 실패했습니다",
   workspace_session_failed: "워크스페이스 세션 생성에 실패했습니다",
@@ -371,7 +371,7 @@ export const ko: Translations = {
   plugin_state_inactive: "비활성",
   plugin_install_title: "플러그인 설치",
   plugin_install_placeholder: "npm 패키지 이름",
-  plugin_installing: "플러그인 설치 중...",
+  plugin_installing: "플러그인 설치 중…",
   plugin_scope: "범위:",
   plugin_scope_global: "전역",
   plugin_scope_local: "로컬",
@@ -413,25 +413,25 @@ export const ko: Translations = {
 
   // tool pending states
   tool_shell_title: "# Shell",
-  tool_writing_cmd: "명령어 작성 중...",
-  tool_preparing_write: "파일 쓰기 준비 중...",
-  tool_finding_files: "파일 찾는 중...",
-  tool_reading_file: "파일 읽는 중...",
-  tool_searching_content: "내용 검색 중...",
-  tool_listing_dir: "디렉토리 나열 중...",
-  tool_fetching_web: "웹에서 가져오는 중...",
-  tool_searching_code: "코드 검색 중...",
-  tool_searching_web: "웹 검색 중...",
-  tool_delegating: "위임 중...",
-  tool_preparing_edit: "편집 준비 중...",
-  tool_preparing_patch: "패치 준비 중...",
+  tool_writing_cmd: "명령어 작성 중…",
+  tool_preparing_write: "파일 쓰기 준비 중…",
+  tool_finding_files: "파일 찾는 중…",
+  tool_reading_file: "파일 읽는 중…",
+  tool_searching_content: "내용 검색 중…",
+  tool_listing_dir: "디렉토리 나열 중…",
+  tool_fetching_web: "웹에서 가져오는 중…",
+  tool_searching_code: "코드 검색 중…",
+  tool_searching_web: "웹 검색 중…",
+  tool_delegating: "위임 중…",
+  tool_preparing_edit: "편집 준비 중…",
+  tool_preparing_patch: "패치 준비 중…",
   tool_patch_failed: "패치 실패",
-  tool_updating_todos: "할 일 업데이트 중...",
+  tool_updating_todos: "할 일 업데이트 중…",
   tool_todos_update_failed: "할 일 업데이트 실패",
-  tool_asking_questions: "질문 중...",
+  tool_asking_questions: "질문 중…",
   tool_todos_title: "# 할 일",
   tool_questions_title: "# 질문",
-  tool_loading_skill: "스킬 로딩 중...",
+  tool_loading_skill: "스킬 로딩 중…",
 
   // task tool
   task_toolcalls: (n) => `도구 호출 ${n}회`,
