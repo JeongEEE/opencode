@@ -6,7 +6,7 @@ export const en = {
   provider_recommended: "(Recommended)",
   provider_popular: "Popular",
   provider_other: "Other",
-  provider_waiting: "Waiting for authorization...",
+  provider_waiting: "Waiting for authorization…",
   provider_invalid_code: "Invalid code",
   provider_auth_code: "Authorization code",
   provider_copy: "copy",
@@ -67,8 +67,8 @@ export const en = {
   question_multi_hint: " (select all that apply)",
 
   // startup
-  startup_finishing: "Finishing startup...",
-  startup_plugins: "Loading plugins...",
+  startup_finishing: "Finishing startup…",
+  startup_plugins: "Loading plugins…",
 
   // toast / clipboard
   copied_clipboard: "Copied to clipboard",
@@ -77,7 +77,7 @@ export const en = {
   // update
   update_available: "Update Available",
   update_available_msg: (v: string) => `A new release v${v} is available. Would you like to update now?`,
-  update_updating: (v: string) => `Updating to v${v}...`,
+  update_updating: (v: string) => `Updating to v${v}…`,
   update_failed_title: "Update Failed",
   update_failed_msg: "Update failed",
   update_complete_title: "Update Complete",
@@ -234,7 +234,7 @@ export const en = {
 
   // dialog-skill
   skill_title: "Skills",
-  skill_search: "Search skills...",
+  skill_search: "Search skills…",
   skill_load_error: "Could not load skills",
 
   // dialog-go-upsell
@@ -248,8 +248,8 @@ export const en = {
 
   // dialog-prompt
   prompt_placeholder: "Enter text",
-  status_working: "Working...",
-  status_processing: "processing...",
+  status_working: "Working…",
+  status_processing: "processing…",
 
   // dialog-export
   export_title: "Export Options",
@@ -312,7 +312,7 @@ export const en = {
   heap_snapshot: (files: string) => `Heap snapshot written to ${files}`,
 
   // org
-  org_loading: "Loading orgs...",
+  org_loading: "Loading orgs…",
   org_none: "No orgs found",
   org_load_error: "Could not load orgs",
   org_switched: (name: string): string => `Switched to ${name}`,
@@ -331,11 +331,11 @@ export const en = {
   // workspace
   workspace_new: "New Workspace",
   workspace_creating_title: "Creating Workspace",
-  workspace_creating_type: (type: string): string => `Creating ${type} workspace...`,
+  workspace_creating_type: (type: string): string => `Creating ${type} workspace…`,
   workspace_remote_wait: "This can take a while for remote environments",
   workspace_worktree: "Worktree",
   workspace_worktree_desc: "Create a local git worktree",
-  workspace_loading: "Loading workspaces...",
+  workspace_loading: "Loading workspaces…",
   workspace_loading_desc: "Fetching available workspace adaptors",
   workspace_failed: "Failed to create workspace",
   workspace_session_failed: "Failed to create workspace session",
@@ -370,7 +370,7 @@ export const en = {
   plugin_state_inactive: "inactive",
   plugin_install_title: "Install plugin",
   plugin_install_placeholder: "npm package name",
-  plugin_installing: "Installing plugin...",
+  plugin_installing: "Installing plugin…",
   plugin_scope: "scope:",
   plugin_scope_global: "global",
   plugin_scope_local: "local",
@@ -413,25 +413,25 @@ export const en = {
 
   // tool pending states
   tool_shell_title: "# Shell",
-  tool_writing_cmd: "Writing command...",
-  tool_preparing_write: "Preparing write...",
-  tool_finding_files: "Finding files...",
-  tool_reading_file: "Reading file...",
-  tool_searching_content: "Searching content...",
-  tool_listing_dir: "Listing directory...",
-  tool_fetching_web: "Fetching from the web...",
-  tool_searching_code: "Searching code...",
-  tool_searching_web: "Searching web...",
-  tool_delegating: "Delegating...",
-  tool_preparing_edit: "Preparing edit...",
-  tool_preparing_patch: "Preparing patch...",
+  tool_writing_cmd: "Writing command…",
+  tool_preparing_write: "Preparing write…",
+  tool_finding_files: "Finding files…",
+  tool_reading_file: "Reading file…",
+  tool_searching_content: "Searching content…",
+  tool_listing_dir: "Listing directory…",
+  tool_fetching_web: "Fetching from the web…",
+  tool_searching_code: "Searching code…",
+  tool_searching_web: "Searching web…",
+  tool_delegating: "Delegating…",
+  tool_preparing_edit: "Preparing edit…",
+  tool_preparing_patch: "Preparing patch…",
   tool_patch_failed: "Patch failed",
-  tool_updating_todos: "Updating todos...",
+  tool_updating_todos: "Updating todos…",
   tool_todos_update_failed: "Todo update failed",
-  tool_asking_questions: "Asking questions...",
+  tool_asking_questions: "Asking questions…",
   tool_todos_title: "# Todos",
   tool_questions_title: "# Questions",
-  tool_loading_skill: "Loading skill...",
+  tool_loading_skill: "Loading skill…",
 
   // task tool
   task_toolcalls: (n: number): string => `${n} toolcall${n !== 1 ? "s" : ""}`,
